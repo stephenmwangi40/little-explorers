@@ -47,7 +47,10 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy website --project-name=little-explorers --branch=main
+          # Creates the Pages project the first time, then deploys.
+          command: |
+            pages project create little-explorers --production-branch=main || true
+            pages deploy website --project-name=little-explorers --branch=main
       - name: Skipped
         if: ${{ env.HAS_CF != 'true' }}
         run: echo "Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets to also publish on Cloudflare."
