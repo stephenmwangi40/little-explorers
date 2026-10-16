@@ -1,0 +1,53 @@
+# Publishes the information website (website/) to GitHub Pages, and to
+# Cloudflare Pages when CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID
+# repository secrets are set.
+name: Website
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['website/**', '.github/workflows/website.yml']
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  deployments: write
+
+concurrency:
+  group: website
+  cancel-in-progress: true
+
+jobs:
+  github-pages:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: website
+      - id: deploy
+        uses: actions/deploy-pages@v4
+
+  cloudflare:
+    runs-on: ubuntu-latest
+    env:
+      HAS_CF: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        if: ${{ env.HAS_CF == 'true' }}
+      - name: Deploy to Cloudflare Pages
+        if: ${{ env.HAS_CF == 'true' }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website --project-name=little-explorers --branch=main
+      - name: Skipped
+        if: ${{ env.HAS_CF != 'true' }}
+        run: echo "Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets to also publish on Cloudflare."
