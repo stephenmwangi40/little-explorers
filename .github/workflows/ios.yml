@@ -1,0 +1,79 @@
+# Builds the iPhone + iPad app on a cloud Mac.
+#
+# Always produces (no Apple account needed):
+#   - LittleExplorers-unsigned.ipa   (re-sign with your Apple ID to install)
+#   - LittleExplorers-simulator.zip  (runs in the iPad/iPhone Simulator)
+#
+# Produces a signed, App Store / TestFlight-ready IPA and uploads it to
+# TestFlight when these repository secrets exist (Settings > Secrets > Actions):
+#   APPLE_TEAM_ID        10-character team id from developer.apple.com
+#   ASC_KEY_ID           App Store Connect API key id
+#   ASC_ISSUER_ID        App Store Connect API issuer id
+#   ASC_KEY_P8_BASE64    the .p8 API key file, base64-encoded
+name: iOS build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      HAS_SIGNING: ${{ secrets.ASC_KEY_P8_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Get packages
+        run: flutter pub get
+
+      - name: Tests
+        run: flutter test
+
+      - name: Build unsigned device app
+        run: flutter build ios --release --no-codesign
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p out/Payload
+          cp -R build/ios/iphoneos/Runner.app out/Payload/
+          cd out && zip -qr LittleExplorers-unsigned.ipa Payload && rm -rf Payload
+
+      - name: Build simulator app
+        run: |
+          flutter build ios --simulator --debug
+          cd build/ios/iphonesimulator && zip -qr ../../../out/LittleExplorers-simulator.zip Runner.app
+
+      - name: Signed IPA (only with Apple secrets)
+        if: ${{ env.HAS_SIGNING == 'true' }}
+        env:
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.ASC_KEY_P8_BASE64 }}" | base64 --decode > ~/private_keys/AuthKey_$KEY_ID.p8
+          AUTH="-allowProvisioningUpdates -authenticationKeyPath $HOME/private_keys/AuthKey_$KEY_ID.p8 -authenticationKeyID $KEY_ID -authenticationKeyIssuerID $ISSUER"
+          flutter build ios --release --config-only
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \
+            -archivePath build/Runner.xcarchive -destination 'generic/platform=iOS' archive \
+            DEVELOPMENT_TEAM=$TEAM CODE_SIGN_STYLE=Automatic $AUTH
+          sed "s/TEAM_ID_HERE/$TEAM/" ios/ExportOptions.plist > build/ExportOptions.plist
+          xcodebuild -exportArchive -archivePath build/Runner.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/ipa $AUTH
+          cp build/ipa/*.ipa out/LittleExplorers-appstore.ipa
+          xcrun altool --upload-app -f out/LittleExplorers-appstore.ipa -t ios \
+            --apiKey $KEY_ID --apiIssuer $ISSUER || echo "Upload skipped or failed; the IPA is still in the artifact."
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LittleExplorers-iOS
+          path: out/
