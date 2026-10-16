@@ -77,7 +77,10 @@ class _LetterSoundGameState extends State<LetterSoundGame> {
   @override
   Widget build(BuildContext context) {
     final api = widget.api;
-    final rest = kw.ending ? kw.word.substring(0, kw.word.length - target.length) : kw.word.substring(target.length);
+    // Blank the sound where it appears: start, middle (vowel teams) or end.
+    final at = kw.ending ? kw.word.lastIndexOf(target) : kw.word.indexOf(target);
+    final before = at <= 0 ? '' : kw.word.substring(0, at);
+    final after = at < 0 ? kw.word : kw.word.substring(at + target.length);
     final blank = Container(
       width: 30.0 * target.length + 10,
       height: 44,
@@ -91,9 +94,9 @@ class _LetterSoundGameState extends State<LetterSoundGame> {
         Pic(kw.pic, size: 120),
         const SizedBox(height: 8),
         Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
-          if (!kw.ending) blank,
-          Text(rest, style: baloo(46, color: Colors.white, height: 1)),
-          if (kw.ending) blank,
+          if (before.isNotEmpty) Text(before, style: baloo(46, color: Colors.white, height: 1)),
+          blank,
+          if (after.isNotEmpty) Text(after, style: baloo(46, color: Colors.white, height: 1)),
         ]),
         const SizedBox(height: 8),
         qText('Which letter says /$target/?', size: 19),
@@ -138,9 +141,10 @@ class _BlendGameState extends State<BlendGame> {
     super.initState();
     final taught = (widget.level.p['taught'] as List).cast<String>();
     final pool = <BlendWord>[];
-    for (final ws in blendWords.values) {
+    final only = widget.level.p['only'] as int?;
+    for (final ws in only != null ? [blendWords[only]!] : blendWords.values) {
       for (final w in ws) {
-        if (w.sounds.every(taught.contains) && pool.every((p) => p.pic != w.pic)) pool.add(w);
+        if ((only != null || w.sounds.every(taught.contains)) && pool.every((p) => p.pic != w.pic)) pool.add(w);
       }
     }
     final r = widget.api.rng;
@@ -261,6 +265,8 @@ const _starts = <String, List<double>>{
   'i': [.5, .32, 0, 1], 'k': [.14, .02, 0, 1], 'l': [.5, .02, 0, 1], 'm': [.08, .05, 0, 1],
   'n': [.12, .05, 0, 1], 'o': [.5, .03, -1, 0], 'p': [.14, .03, 0, 1], 'r': [.14, .05, 0, 1],
   's': [.84, .16, -1, 0], 't': [.42, .02, 0, 1], 'u': [.12, .03, 0, 1],
+  'j': [.62, .3, 0, 1], 'v': [.04, .05, .45, 1], 'w': [.03, .05, .3, 1], 'x': [.05, .05, 1, 1],
+  'y': [.06, .04, .5, 1], 'z': [.08, .06, 1, 0],
 };
 
 class TraceGame extends StatefulWidget {
@@ -414,7 +420,7 @@ class _TraceGameState extends State<TraceGame> {
                   ink: _ink,
                   start: start,
                   pulse: pulse,
-                  font: baloo(box * .78, color: Colors.white.withValues(alpha: .35), height: 1),
+                  font: baloo(box * .78, color: Colors.white.withValues(alpha: .5), height: 1),
                 ),
               ),
             ),
@@ -483,19 +489,6 @@ class _TracePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final tp = TextPainter(text: TextSpan(text: letter, style: font), textDirection: TextDirection.ltr)..layout();
     tp.paint(canvas, Offset((size.width - tp.width) / 2, (size.height - tp.height) / 2));
-    // Dotted guide on top of the faint letter.
-    final outline = TextPainter(
-      text: TextSpan(
-          text: letter,
-          style: font.copyWith(
-              color: null,
-              foreground: Paint()
-                ..style = PaintingStyle.stroke
-                ..strokeWidth = 3
-                ..color = Colors.white.withValues(alpha: .9))),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    outline.paint(canvas, Offset((size.width - outline.width) / 2, (size.height - outline.height) / 2));
 
     if (start != null) {
       final p = Offset(ink.left + start![0] * ink.width, ink.top + start![1] * ink.height).scale(size.width, size.height);

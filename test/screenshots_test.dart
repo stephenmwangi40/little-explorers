@@ -82,6 +82,17 @@ void main() {
     '25_subscribe': () => const SubscriptionScreen(),
     '26_make10': () => GameShell(level: lv(WorldId.math, 25)),
     '27_quick_look': () => GameShell(level: lv(WorldId.math, 5)),
+    '28_case_match': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.type == GameType.caseMatch)),
+    '29_sight_word': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.type == GameType.sightWord)),
+    '30_rhyme': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.type == GameType.rhyme)),
+    '31_add': () => GameShell(level: allLevels[WorldId.math]!.firstWhere((l) => l.type == GameType.addSub)),
+    '32_number_order': () => GameShell(level: allLevels[WorldId.math]!.firstWhere((l) => l.type == GameType.numberOrder)),
+    '33_solid': () => GameShell(level: allLevels[WorldId.shapes]!.firstWhere((l) => l.type == GameType.solid)),
+    '34_position': () => GameShell(level: allLevels[WorldId.shapes]!.firstWhere((l) => l.type == GameType.position)),
+    '35_shape_count': () => GameShell(level: allLevels[WorldId.shapes]!.firstWhere((l) => l.type == GameType.shapeCount)),
+    '36_feelings': () => GameShell(level: allLevels[WorldId.story]!.firstWhere((l) => l.type == GameType.feelings)),
+    '37_trace_capital': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.p['letter'] == 'B')),
+    '38_subtract': () => GameShell(level: allLevels[WorldId.math]!.firstWhere((l) => l.p['op'] == 'sub')),
   };
 
   for (final sz in sizes.entries) {

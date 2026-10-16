@@ -118,6 +118,123 @@ const labTopics = <LabTopic>[
   ]),
 ];
 
+String _q(LabItem i) => i.name;
+String _livingQ(LabItem i) => 'Is the ${i.name} living?';
+String _heavyQ(LabItem i) => 'Is the ${i.name} heavy or light?';
+String _loudQ(LabItem i) => 'Is a ${i.name} loud or quiet?';
+String _foodQ(LabItem i) => '${i.name[0].toUpperCase()}${i.name.substring(1)}: every day, or sometimes?';
+String _recycleQ(LabItem i) => 'Where does the ${i.name} go?';
+String _travelQ(LabItem i) => 'Where does a ${i.name} go?';
+String _babyQ(LabItem i) => 'What is a baby ${i.name} like?';
+String _eatQ(LabItem i) => 'What does a ${i.name} eat?';
+String _softQ(LabItem i) => 'Is the ${i.name} soft or hard?';
+
+const moreLabTopics = <LabTopic>[
+  LabTopic('living', 'Alive or not?', _livingQ, ['🌱', '🪨'], ['Living', 'Not living'], [
+    LabItem('🐶', 'dog', 0, 'Living! Dogs eat, grow and breathe.'),
+    LabItem('🪨', 'rock', 1, 'Not living. A rock does not eat or grow.'),
+    LabItem('🌳', 'tree', 0, 'Living! Trees drink water and grow.'),
+    LabItem('🚗', 'car', 1, 'Not living. A car needs a driver to move.'),
+    LabItem('🐟', 'fish', 0, 'Living! Fish eat and grow.'),
+    LabItem('🧸', 'teddy', 1, 'Not living. A teddy does not grow.'),
+    LabItem('🌷', 'flower', 0, 'Living! Flowers grow from seeds.'),
+    LabItem('🥄', 'spoon', 1, 'Not living. A spoon does not eat or breathe.'),
+  ]),
+  LabTopic('heavy', 'Heavy or light?', _heavyQ, ['🏋️', '🪶'], ['Heavy', 'Light'], [
+    LabItem('🐘', 'elephant', 0, 'Heavy! An elephant is one of the heaviest animals.'),
+    LabItem('🪶', 'feather', 1, 'Light! A feather floats in the air.'),
+    LabItem('🎈', 'balloon', 1, 'Light! A balloon is full of air.'),
+    LabItem('🚚', 'truck', 0, 'Heavy! Trucks are big and made of metal.'),
+    LabItem('🍃', 'leaf', 1, 'Light! The wind can blow a leaf away.'),
+    LabItem('🪨', 'big rock', 0, 'Heavy! Big rocks are hard to lift.'),
+    LabItem('🧻', 'tissue', 1, 'Light! A tissue is thin and soft.'),
+    LabItem('🎹', 'piano', 0, 'Heavy! It takes many people to move a piano.'),
+  ]),
+  LabTopic('loud', 'Loud or quiet?', _loudQ, ['🔊', '🤫'], ['Loud', 'Quiet'], [
+    LabItem('🦁', 'lion roaring', 0, 'Loud! A roar can be heard far away.'),
+    LabItem('🐭', 'mouse squeaking', 1, 'Quiet! Squeak, squeak.'),
+    LabItem('🚒', 'fire engine', 0, 'Loud! The siren warns people to move.'),
+    LabItem('🍂', 'leaf falling', 1, 'Quiet! You can hardly hear it.'),
+    LabItem('🥁', 'drum', 0, 'Loud! Boom, boom!'),
+    LabItem('🐱', 'cat purring', 1, 'Quiet! A soft purr.'),
+    LabItem('⛈️', 'thunder clap', 0, 'Loud! Thunder rumbles in the sky.'),
+    LabItem('🤫', 'whisper', 1, 'Quiet! Whispers are soft.'),
+  ]),
+  LabTopic('food', 'Healthy food', _foodQ, ['💪', '🍬'], ['Every day', 'Sometimes'], [
+    LabItem('🥦', 'broccoli', 0, 'Every day! Vegetables help you grow strong.'),
+    LabItem('🍭', 'lollipop', 1, 'Sometimes! Too much sugar is not good for teeth.'),
+    LabItem('apple', 'apple', 0, 'Every day! Fruit is good for you.'),
+    LabItem('🍩', 'doughnut', 1, 'Sometimes! A treat for special days.'),
+    LabItem('🥕', 'carrot', 0, 'Every day! Crunchy and good for you.'),
+    LabItem('🍟', 'chips', 1, 'Sometimes! Salty food is a treat.'),
+    LabItem('🥛', 'milk', 0, 'Every day! Milk helps build strong bones.'),
+    LabItem('🍫', 'chocolate', 1, 'Sometimes! Yummy, but just a little.'),
+  ]),
+  LabTopic('recycle', 'Recycling', _recycleQ, ['♻️', '🍂'], ['Recycle bin', 'Compost'], [
+    LabItem('🥫', 'tin can', 0, 'Recycle! Cans can be made into new cans.'),
+    LabItem('🍌', 'banana peel', 1, 'Compost! Peels turn into soil for plants.'),
+    LabItem('📰', 'newspaper', 0, 'Recycle! Paper can be made into new paper.'),
+    LabItem('🍏', 'apple core', 1, 'Compost! It rots and feeds the soil.'),
+    LabItem('🍾', 'glass bottle', 0, 'Recycle! Glass can be melted and used again.'),
+    LabItem('🥚', 'egg shell', 1, 'Compost! Shells help plants grow.'),
+    LabItem('📦', 'cardboard box', 0, 'Recycle! Boxes become new boxes.'),
+    LabItem('🍂', 'pile of dry leaves', 1, 'Compost! Leaves become rich soil.'),
+  ]),
+  LabTopic('travel', 'Land, water or air?', _travelQ, ['🛣️', '🌊', '☁️'], ['Land', 'Water', 'Air'], [
+    LabItem('🚗', 'car', 0, 'Land! Cars drive on roads.'),
+    LabItem('⛵', 'sailing boat', 1, 'Water! The wind pushes the sail.'),
+    LabItem('✈️', 'plane', 2, 'Air! Planes fly high above the clouds.'),
+    LabItem('🚂', 'train', 0, 'Land! Trains run on tracks.'),
+    LabItem('🚁', 'helicopter', 2, 'Air! Its blades spin round and round.'),
+    LabItem('🚢', 'ship', 1, 'Water! Ships carry people across the sea.'),
+    LabItem('🚲', 'bike', 0, 'Land! Pedal, pedal.'),
+    LabItem('🎈', 'hot air balloon', 2, 'Air! Hot air makes it float up.'),
+  ]),
+  LabTopic('babies', 'Animal babies', _babyQ, ['🐣', '🐮', '🐸'], ['Chick', 'Calf', 'Tadpole'], [
+    LabItem('🐔', 'hen', 0, 'A chick! Chicks hatch from eggs.'),
+    LabItem('🐄', 'cow', 1, 'A calf! Calves drink their mother’s milk.'),
+    LabItem('🐸', 'frog', 2, 'A tadpole! Tadpoles grow legs and become frogs.'),
+    LabItem('🦆', 'duck', 0, 'A duckling! It hatches from an egg, like a chick.'),
+    LabItem('🐘', 'elephant', 1, 'A calf! Baby elephants are called calves too.'),
+    LabItem('🦢', 'swan', 0, 'A cygnet! It hatches from an egg, like a chick.'),
+  ]),
+  LabTopic('eat', 'What do animals eat?', _eatQ, ['🥕', '🐟', '🌾'], ['Carrots', 'Fish', 'Seeds'], [
+    LabItem('🐰', 'rabbit', 0, 'Carrots and leafy greens!'),
+    LabItem('🐧', 'penguin', 1, 'Fish! Penguins dive to catch them.'),
+    LabItem('🐦', 'little bird', 2, 'Seeds! Little birds love seeds.'),
+    LabItem('🦭', 'seal', 1, 'Fish! Seals are great swimmers.'),
+    LabItem('🐹', 'hamster', 2, 'Seeds and grains!'),
+    LabItem('🐴', 'horse', 0, 'Carrots, hay and grass!'),
+  ]),
+  LabTopic('materials', 'Soft or hard?', _softQ, ['☁️', '🧱'], ['Soft', 'Hard'], [
+    LabItem('🧸', 'teddy', 0, 'Soft! Lovely to cuddle.'),
+    LabItem('🧱', 'brick', 1, 'Hard! Bricks build strong walls.'),
+    LabItem('🛏️', 'pillow', 0, 'Soft! Good for sleeping.'),
+    LabItem('🪨', 'rock', 1, 'Hard! Rocks do not squish.'),
+    LabItem('🧶', 'wool', 0, 'Soft! Wool comes from sheep.'),
+    LabItem('🔨', 'hammer', 1, 'Hard! Made of metal and wood.'),
+  ]),
+  LabTopic('season', 'Seasons', _q, ['☀️', '❄️', '🍂'], ['Summer', 'Winter', 'Autumn'], [
+    LabItem('🏖️', 'When do we go to the beach?', 0, 'Summer! It is warm and sunny.'),
+    LabItem('⛄', 'When can we build a snowman?', 1, 'Winter! In cold places it snows.'),
+    LabItem('🍂', 'When do leaves fall off trees?', 2, 'Autumn! Leaves turn orange and fall.'),
+    LabItem('🍉', 'When do we eat cold watermelon?', 0, 'Summer! A cool treat on a hot day.'),
+    LabItem('🧣', 'When do we wear warm scarves?', 1, 'Winter! Wrap up warm.'),
+    LabItem('🎃', 'When are pumpkins ready to pick?', 2, 'Autumn! It is harvest time.'),
+  ]),
+  LabTopic('body', 'My body', _q, ['🫁', '❤️', '🦴'], ['Lungs', 'Heart', 'Bones'], [
+    LabItem('🌬️', 'What helps you breathe?', 0, 'Your lungs! Breathe in, breathe out.'),
+    LabItem('🏃', 'What beats fast when you run?', 1, 'Your heart! Feel it go thump, thump.'),
+    LabItem('🧍', 'What helps you stand up tall?', 2, 'Your bones! They hold you up.'),
+    LabItem('🎈', 'What helps you blow up a balloon?', 0, 'Your lungs! Big breath in...'),
+    LabItem('🩺', 'What does the doctor listen to?', 1, 'Your heart! Ba-dum, ba-dum.'),
+    LabItem('🥛', 'What does milk help grow strong?', 2, 'Your bones!'),
+  ]),
+];
+
+/// All Wonder Lab topics, in teaching order.
+const allLabTopics = <LabTopic>[...labTopics, ...moreLabTopics];
+
 class Move {
   final String name; // "Jump like a frog"
   final String verb; // "jump"
@@ -147,4 +264,14 @@ const moves = <Move>[
   Move('Sway like a tree', 'sway', '🌳'),
   Move('Freeze like a statue', 'freeze', '🗿'),
   Move('Waddle like a penguin', 'waddle', '🐧'),
+  Move('Gallop like a horse', 'gallop', '🐴'),
+  Move('Wave like an octopus', 'wave', '🐙'),
+  Move('Slither like a snake', 'slither', '🐍'),
+  Move('Buzz like a busy bee', 'buzz', '🐝'),
+  Move('Do star jumps', 'jump', '⭐'),
+  Move('Pop like popcorn', 'pop', '🍿'),
+  Move('Melt like a snowman', 'melt', '⛄'),
+  Move('Crawl like a bear', 'crawl', '🐻'),
+  Move('Smell the flower, blow the candle', 'breathe', '🌸', breath: true),
+  Move('Kick like a football star', 'kick', '⚽'),
 ];

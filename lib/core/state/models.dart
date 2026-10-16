@@ -1,7 +1,7 @@
 import '../../learning/mastery.dart';
 
 class Settings {
-  int adventureMinutes; // 10 / 15 / 20
+  int adventureMinutes; // 10 / 15 / 20 / 30
   int dailyLimit; // 20 / 30 / 45 / 60
   bool bedtimeLock;
   bool moveBreaks;
@@ -16,8 +16,8 @@ class Settings {
   bool cloudBackup;
 
   Settings({
-    this.adventureMinutes = 15,
-    this.dailyLimit = 20,
+    this.adventureMinutes = 30,
+    this.dailyLimit = 30,
     this.bedtimeLock = true,
     this.moveBreaks = true,
     this.english = 'US',
@@ -48,8 +48,8 @@ class Settings {
       };
 
   factory Settings.fromJson(Map<String, dynamic> j) => Settings(
-        adventureMinutes: j['adv'] as int? ?? 15,
-        dailyLimit: j['lim'] as int? ?? 20,
+        adventureMinutes: j['adv'] as int? ?? 30,
+        dailyLimit: j['lim'] as int? ?? 30,
         bedtimeLock: j['bed'] as bool? ?? true,
         moveBreaks: j['mb'] as bool? ?? true,
         english: j['en'] as String? ?? 'US',

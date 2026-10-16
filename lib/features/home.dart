@@ -231,7 +231,9 @@ class _AdventureCard extends StatelessWidget {
     final s = AppScope.of(context);
     final step = s.adventureStep;
     final worlds = s.adventureWorlds;
-    final sz = large ? 52.0 : 44.0;
+    // Shrink the step dots when there are many steps on a narrow screen.
+    final steps0 = worlds.length + 1;
+    final sz = large ? 52.0 : (MediaQuery.sizeOf(context).width < 400 && steps0 > 6 ? 36.0 : 44.0);
     Widget dot(int i, Color c, Widget glyph) {
       final done = i < step;
       final cur = i == step;

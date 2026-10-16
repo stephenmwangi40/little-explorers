@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../content/levels.dart';
+import '../content/phonics.dart';
 import '../core/responsive.dart';
 import '../core/state/scope.dart';
 import '../core/theme.dart';
@@ -9,7 +10,7 @@ import '../core/widgets/buttons.dart';
 import '../core/widgets/glass.dart';
 import '../core/widgets/scene.dart';
 import '../core/widgets/tiko.dart';
-import '../content/stories.dart';
+import '../content/stories_more.dart';
 import 'home.dart';
 import 'reward.dart';
 
@@ -139,28 +140,29 @@ List<TogetherCard> togetherCards(List<String> recent, List<String> stickers) {
   }
 
   for (final sk in recent) {
-    if (sk.startsWith('snd_') || sk.startsWith('blend_') || sk.startsWith('trace_')) {
-      final g = sk.startsWith('snd_') ? sk.substring(4) : (sk.startsWith('trace_') ? sk.substring(6) : 'p');
+    if (sk.startsWith('snd_') || sk.startsWith('blend_') || sk.startsWith('trace_') || sk == 'rhyme' || sk == 'sight' || sk == 'case') {
+      var g = sk.startsWith('snd_') ? sk.substring(4) : (sk.startsWith('trace_') ? sk.substring(6) : 'p');
+      if (!speakSound.containsKey(g)) g = 'p';
       add(TogetherCard('Talk about it', '2 min',
           'Ask: "What else starts with /$g/?" Take turns finding things in the room that start with that sound.'));
       if (sk.startsWith('trace_')) {
         add(TogetherCard('Draw it big', 'off screen',
             'Draw the letter $g in the air, on a steamy window or in sand. Start at the top!'));
       }
-    } else if (sk.startsWith('count') || sk.startsWith('numeral') || sk == 'subitise') {
+    } else if (sk.startsWith('count') || sk.startsWith('numeral') || sk == 'subitise' || sk.startsWith('add') || sk.startsWith('subtract') || sk == 'order' || sk.startsWith('skip')) {
       add(const TogetherCard('Snack-time counting', 'off screen',
           'Count crackers or grapes together, touching each one. "How many? Who has more?"'));
     } else if (sk.startsWith('compare')) {
       add(const TogetherCard('More or fewer?', 'off screen', 'Make two piles of socks. Which pile has more? Which has fewer?'));
     } else if (sk.startsWith('make_')) {
       add(const TogetherCard('Fingers make ten', '2 min', 'Hold up 7 fingers. How many more to make 10? Take turns.'));
-    } else if (sk.startsWith('shape') || sk.startsWith('pattern') || sk == 'size') {
+    } else if (sk.startsWith('shape') || sk.startsWith('pattern') || sk == 'size' || sk == 'solids' || sk == 'position') {
       add(const TogetherCard('Shape hunt', 'outside', 'Find a circle, a square and a triangle on a walk. Take turns pointing.'));
       add(const TogetherCard('Clap a pattern', '2 min', 'Clap, stamp, clap, stamp… what comes next? Then let your child lead.'));
-    } else if (sk.startsWith('story')) {
-      final idx = stickers.reversed.map(levelById).whereType<Level>().where((l) => l.world == WorldId.story).firstOrNull;
+    } else if (sk.startsWith('story') || sk == 'feelings') {
+      final idx = stickers.reversed.map(levelById).whereType<Level>().where((l) => l.type == GameType.story).firstOrNull;
       add(TogetherCard('Retell the story', 'bedtime',
-          idx != null ? stories[idx.p['story'] as int].talk : 'How did Momo feel? What would you do to help?'));
+          idx != null ? allStories[idx.p['story'] as int].talk : 'How did Momo feel? What would you do to help?'));
     } else if (sk.startsWith('lab_')) {
       add(const TogetherCard('Kitchen science', 'off screen',
           'Fill a bowl with water. Guess first: will a spoon, a cork and a leaf float or sink? Then test!'));

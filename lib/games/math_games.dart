@@ -49,12 +49,12 @@ class _CountGameState extends State<CountGame> {
   void initState() {
     super.initState();
     final api = widget.api;
-    final maxN = ((widget.level.p['max'] as int) + api.delta).clamp(2, 10);
+    final maxN = ((widget.level.p['max'] as int) + api.delta).clamp(2, 20);
     final minN = max(1, maxN - 4);
     n = minN + api.rng.nextInt(maxN - minN + 1);
     item = widget.level.p['item'] as String;
     layout = widget.level.p['layout'] as String;
-    options = pickNumbers(api.rng, n, api.choices, 1, 10);
+    options = pickNumbers(api.rng, n, api.choices, 1, max(10, maxN));
     spots = _scatter(api.rng, n);
     WidgetsBinding.instance.addPostFrameCallback((_) => api.say('Tap each one to count!'));
   }
@@ -266,15 +266,16 @@ class _QuickLookGameState extends State<QuickLookGame> {
     3: [Offset(.25, .25), Offset(.5, .5), Offset(.75, .75)],
     4: [Offset(.28, .28), Offset(.72, .28), Offset(.28, .72), Offset(.72, .72)],
     5: [Offset(.25, .25), Offset(.75, .25), Offset(.5, .5), Offset(.25, .75), Offset(.75, .75)],
+    6: [Offset(.28, .22), Offset(.72, .22), Offset(.28, .5), Offset(.72, .5), Offset(.28, .78), Offset(.72, .78)],
   };
 
   @override
   void initState() {
     super.initState();
     final api = widget.api;
-    final maxN = ((widget.level.p['max'] as int) + api.delta).clamp(2, 5);
+    final maxN = ((widget.level.p['max'] as int) + api.delta).clamp(2, 6);
     n = 1 + api.rng.nextInt(maxN);
-    options = pickNumbers(api.rng, n, api.choices, 1, 6);
+    options = pickNumbers(api.rng, n, api.choices, 1, 7);
     _flash();
   }
 

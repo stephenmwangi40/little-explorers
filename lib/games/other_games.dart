@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../content/lab_move.dart';
 import '../content/levels.dart';
 import '../content/stories.dart';
+import '../content/stories_more.dart';
 import '../core/audio.dart';
 import '../core/responsive.dart';
 import '../core/state/scope.dart';
@@ -27,7 +28,7 @@ class StoryGame extends StatefulWidget {
 }
 
 class _StoryGameState extends State<StoryGame> {
-  late final Story story = stories[widget.level.p['story'] as int];
+  late final Story story = allStories[widget.level.p['story'] as int];
   int _page = 0;
   int _word = -1;
   Timer? _t;
@@ -163,7 +164,7 @@ class LabGame extends StatefulWidget {
 }
 
 class _LabGameState extends State<LabGame> {
-  late final LabTopic topic = labTopics.firstWhere((t) => t.id == widget.level.p['topic']);
+  late final LabTopic topic = allLabTopics.firstWhere((t) => t.id == widget.level.p['topic']);
   late final LabItem item;
   int? _guess;
   bool _tested = false;

@@ -144,7 +144,7 @@ Widget _chip(String t, {Color bg = Colors.white, Color fg = C.ink, IconData? ico
     child: Row(mainAxisSize: MainAxisSize.min, children: [
       if (lead != null) ...[lead, const SizedBox(width: 4)],
       if (icon != null) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: 4)],
-      Text(t, style: nunito(12, weight: 800, color: fg)),
+      Flexible(child: Text(t, style: nunito(12, weight: 800, color: fg))),
     ]),
   );
   return onTap == null ? w : GestureDetector(onTap: onTap, child: w);
@@ -160,19 +160,21 @@ class SkillArea {
 }
 
 const skillAreas = [
-  SkillArea('Letter sounds (s a t p i n …)', Color(0xFFFF7A59), {GameType.letterSound, GameType.trace}, [
+  SkillArea('Letter sounds (s a t p i n …)', Color(0xFFFF7A59), {GameType.letterSound, GameType.trace, GameType.caseMatch}, [
     'US · CCSS RF.K.3a', 'US · Head Start ELOF: Literacy', 'AU · EYLF Outcome 5', 'AU · AC v9 English F (phonics)',
     'EU · Aistear: Communicating'
   ]),
-  SkillArea('Blending words', Color(0xFFE05A3A), {GameType.blend},
+  SkillArea('Blending, rhymes & tricky words', Color(0xFFE05A3A), {GameType.blend, GameType.rhyme, GameType.sightWord},
       ['US · CCSS RF.K.2, RF.K.3', 'US · ELOF: Literacy', 'AU · EYLF Outcome 5', 'AU · AC v9 English F', 'EU · Aistear: Communicating']),
-  SkillArea('Counting & cardinality', Color(0xFF3DBE7A), {GameType.count, GameType.numeral, GameType.quickLook, GameType.makeN},
+  SkillArea('Counting & cardinality', Color(0xFF3DBE7A), {GameType.count, GameType.numeral, GameType.quickLook, GameType.makeN, GameType.numberOrder},
       ['US · CCSS K.CC.4, K.CC.5', 'US · ELOF: Mathematics', 'AU · AC9MFN01, AC9MFN02', 'AU · EYLF Outcome 4', 'EU · Aistear: Exploring & Thinking']),
-  SkillArea('Comparing groups', Color(0xFF2A9D60), {GameType.compare},
+  SkillArea('Adding & taking away', Color(0xFF1F8F57), {GameType.addSub},
+      ['US · CCSS K.OA.1, K.OA.2, K.OA.5', 'US · ELOF: Mathematics', 'AU · AC v9 Maths F (Number: add & take away)', 'EU · Aistear: Exploring & Thinking']),
+  SkillArea('Comparing groups & numbers', Color(0xFF2A9D60), {GameType.compare, GameType.compareNumbers},
       ['US · CCSS K.CC.6', 'US · ELOF: Mathematics', 'AU · AC v9 Maths F (Number)', 'EU · Aistear: Exploring & Thinking']),
-  SkillArea('Shapes & patterns', Color(0xFF9B6BFF), {GameType.shapeSort, GameType.pattern, GameType.shapeFind, GameType.size},
-      ['US · CCSS K.G.2', 'US · ELOF: Geometry & Patterning', 'AU · AC v9 Maths F (Space, Algebra)', 'EU · Aistear: Exploring & Thinking']),
-  SkillArea('Feelings & story', Color(0xFFE86A92), {GameType.story},
+  SkillArea('Shapes & patterns', Color(0xFF9B6BFF), {GameType.shapeSort, GameType.pattern, GameType.shapeFind, GameType.size, GameType.solid, GameType.position, GameType.shapeCount},
+      ['US · CCSS K.G.1, K.G.2, K.G.3', 'US · ELOF: Geometry & Patterning', 'AU · AC v9 Maths F (Space, Algebra)', 'EU · Aistear: Exploring & Thinking']),
+  SkillArea('Feelings & story', Color(0xFFE86A92), {GameType.story, GameType.feelings},
       ['US · CCSS RL.K.1', 'US · ELOF: Social & Emotional', 'AU · EYLF Outcomes 1, 3 & 5', 'EU · Aistear: Well-being; Identity & Belonging']),
   SkillArea('Science: predict & test', Color(0xFF4DA3FF), {GameType.lab},
       ['US · ELOF: Scientific Reasoning', 'AU · EYLF Outcome 4', 'AU · AC v9 Science F', 'EU · Aistear: Exploring & Thinking']),
@@ -275,7 +277,7 @@ class ParentDashboard extends StatelessWidget {
           title: 'Learning so far',
           aside: p.name,
           child: Column(children: [
-            for (final a in skillAreas.take(5))
+            for (final a in skillAreas)
               Builder(builder: (context) {
                 final (done, tot, _) = areaProgress(s, a);
                 return Padding(
@@ -283,7 +285,7 @@ class ParentDashboard extends StatelessWidget {
                   child: Row(children: [
                     SizedBox(
                         width: 96,
-                        child: Text(a.name.split(' (').first.split(' &').first, style: nunito(13.5, color: C.ink))),
+                        child: Text(a.name.split(RegExp(r'[,(&:]')).first.trim(), style: nunito(13.5, color: C.ink))),
                     Expanded(child: _bar(done / tot, a.color)),
                     SizedBox(
                         width: 54,
@@ -508,7 +510,7 @@ class SettingsScreen extends StatelessWidget {
           title: 'Time',
           child: Column(children: [
             _Row('Adventure length',
-                _Seg(const ['10', '15', '20 min'], [10, 15, 20].indexOf(st.adventureMinutes), (i) => set((x) => x.adventureMinutes = [10, 15, 20][i]))),
+                _Seg(const ['10', '15', '20', '30 min'], [10, 15, 20, 30].indexOf(st.adventureMinutes), (i) => set((x) => x.adventureMinutes = [10, 15, 20, 30][i]))),
             _Row('Daily limit',
                 _Seg(const ['20', '30', '45', '60'], [20, 30, 45, 60].indexOf(st.dailyLimit), (i) => set((x) => x.dailyLimit = [20, 30, 45, 60][i]))),
             _Row('Bedtime lock', _toggle(st.bedtimeLock, (v) => set((x) => x.bedtimeLock = v)), sub: 'No play 7 pm – 7 am'),
@@ -718,7 +720,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               tone: GlassTone.dark,
               child: Column(children: [
                 for (final t in const [
-                  'Every world, all 240 levels',
+                  'Every world, all 960 levels',
                   'Up to 4 child profiles',
                   'Full offline play',
                   'No ads, ever',

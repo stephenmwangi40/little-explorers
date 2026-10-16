@@ -254,14 +254,21 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   // ------------------------------------------------------------ adventure
 
-  List<WorldId> get adventureWorlds => [
-        WorldId.alpha,
-        WorldId.math,
-        WorldId.story,
-        if (settings.moveBreaks) WorldId.move,
-      ];
+  /// Today's Adventure: letters -> numbers -> (shapes) -> story -> (lab) -> movement.
+  /// 30 minutes visits all six worlds; shorter adventures visit fewer.
+  List<WorldId> get adventureWorlds {
+    final m = settings.adventureMinutes;
+    return [
+      WorldId.alpha,
+      WorldId.math,
+      if (m >= 20) WorldId.shapes,
+      WorldId.story,
+      if (m >= 30) WorldId.lab,
+      if (settings.moveBreaks) WorldId.move,
+    ];
+  }
 
-  int get roundsPerStep => switch (settings.adventureMinutes) { 10 => 3, 20 => 5, _ => 4 };
+  int get roundsPerStep => switch (settings.adventureMinutes) { 10 => 3, 15 || 20 => 4, _ => 5 };
 
   void _resetAdventureIfNewDay(Profile p) {
     final today = dayKey(clock());
