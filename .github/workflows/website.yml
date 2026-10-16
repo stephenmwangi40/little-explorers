@@ -52,8 +52,8 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           # Creates the Pages project the first time, then deploys.
-          npx --yes wrangler@4 pages project create little-explorers --production-branch=main || true
-          npx --yes wrangler@4 pages deploy website --project-name=little-explorers --branch=main
+          npx --yes wrangler@4 pages project create little-explorers-app --production-branch=main || true
+          npx --yes wrangler@4 pages deploy website --project-name=little-explorers-app --branch=main
       - name: Skipped
         if: ${{ env.HAS_CF != 'true' }}
         run: echo "Add CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets to also publish on Cloudflare."
