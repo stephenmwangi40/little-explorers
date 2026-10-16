@@ -58,7 +58,7 @@ class StickerBookScreen extends StatelessWidget {
                     crossAxisCount: l.large ? 2 : 1,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
-                    childAspectRatio: l.large ? 6 : 6.4,
+                    childAspectRatio: l.large ? 5.2 : 5.2,
                     children: [
                       for (final w in WorldId.values)
                         GlassPanel(

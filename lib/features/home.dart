@@ -359,7 +359,7 @@ class _Dock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget btn(IconData i, String t, VoidCallback? onTap, {bool on = false}) => Semantics(
+    Widget btn(IconData i, String t, VoidCallback? onTap, {bool on = false}) => Flexible(child: FittedBox(fit: BoxFit.scaleDown, child: Semantics(
           button: true,
           label: t,
           child: GestureDetector(
@@ -383,7 +383,7 @@ class _Dock extends StatelessWidget {
               ]),
             ),
           ),
-        );
+        )));
     return GlassPanel(
       radius: 35,
       height: 70,

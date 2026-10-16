@@ -38,12 +38,17 @@ AppState makeState() {
   return s;
 }
 
-Future<void> pumpAt(WidgetTester t, Size size, Widget page, {AppState? state}) async {
+Future<void> pumpAt(WidgetTester t, Size size, Widget page, {AppState? state, double text = 1}) async {
   t.view.physicalSize = size * 2;
   t.view.devicePixelRatio = 2;
   await t.pumpWidget(AppScope(
     state: state ?? makeState(),
-    child: MaterialApp(theme: buildTheme(), home: page),
+    child: MaterialApp(
+      theme: buildTheme(),
+      builder: (c, child) => MediaQuery(
+          data: MediaQuery.of(c).copyWith(textScaler: TextScaler.linear(text)), child: child!),
+      home: page,
+    ),
   ));
   for (var i = 0; i < 4; i++) {
     await t.pump(const Duration(milliseconds: 300));
@@ -77,6 +82,7 @@ void main() {
     'settings': () => const SettingsScreen(),
     'subscribe': () => const SubscriptionScreen(),
     'privacy': () => const PrivacyScreen(),
+    'terms': () => const TermsScreen(),
   };
 
   // One level of every game type (plus a few harder ones).
@@ -108,6 +114,25 @@ void main() {
       for (final g in games) {
         testWidgets('game ${g.id} ${g.type.name}', (t) async {
           await pumpAt(t, e.value, GameShell(level: g));
+          expect(t.takeException(), isNull);
+          await tidy(t);
+        });
+      }
+    });
+  }
+
+  for (final sz in const [Size(390, 844), Size(360, 640), Size(1180, 820)]) {
+    group('largest text size at ${sz.width.toInt()}x${sz.height.toInt()}', () {
+      for (final sc in screens.entries) {
+        testWidgets('screen ${sc.key}', (t) async {
+          await pumpAt(t, sz, sc.value(), text: 1.3);
+          expect(t.takeException(), isNull);
+          await tidy(t);
+        });
+      }
+      for (final g in games) {
+        testWidgets('game ${g.id}', (t) async {
+          await pumpAt(t, sz, GameShell(level: g), text: 1.3);
           expect(t.takeException(), isNull);
           await tidy(t);
         });

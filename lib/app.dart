@@ -17,6 +17,15 @@ class LittleExplorersApp extends StatelessWidget {
         title: 'Little Explorers',
         debugShowCheckedModeBanner: false,
         theme: buildTheme(),
+        // Respect the system text size (Dynamic Type), within a range the
+        // big, picture-led child layouts can hold.
+        builder: (context, child) {
+          final mq = MediaQuery.of(context);
+          return MediaQuery(
+            data: mq.copyWith(textScaler: mq.textScaler.clamp(minScaleFactor: 1, maxScaleFactor: 1.3)),
+            child: child!,
+          );
+        },
         home: const SplashScreen(),
       ),
     );

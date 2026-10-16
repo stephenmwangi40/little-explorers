@@ -13,7 +13,7 @@ Future<void> main(List<String> args) async {
   stdout.writeln('Serving $root at http://localhost:$port');
   await for (final req in server) {
     var path = Uri.decodeComponent(req.uri.path);
-    if (path == '/' || path.isEmpty) path = '/index.html';
+    if (path.isEmpty || path.endsWith('/')) path = '${path}index.html';
     final f = File('$root$path');
     if (!f.path.startsWith(root) || !await f.exists()) {
       req.response.statusCode = 404;

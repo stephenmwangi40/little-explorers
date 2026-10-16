@@ -31,6 +31,7 @@ const sizes = {
   'ipad_13_portrait': (Size(1032, 1376), 2.0),
   'ipad_13_landscape': (Size(1376, 1032), 2.0),
   'android_phone': (Size(412, 915), 2.625),
+  'web': (Size(390, 844), 1.0),
 };
 
 AppState makeState() {

@@ -324,7 +324,7 @@ class ParentDashboard extends StatelessWidget {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 10,
             crossAxisSpacing: 10,
-            childAspectRatio: cols == 4 ? 2.1 : 2.3,
+            childAspectRatio: cols == 4 ? 1.9 : 2.0,
             children: links,
           );
         })),
@@ -543,6 +543,8 @@ class SettingsScreen extends StatelessWidget {
                 sub: 'Everything works offline. Nothing to download.'),
             _Row('Cloud backup', _toggle(false, (_) {}, enabled: false), sub: 'Off · needs a parent account (coming later)'),
             _Row('Privacy policy', TextButton(onPressed: () => go(context, const PrivacyScreen()), child: const Text('Open'))),
+            _Row('Terms of Use', TextButton(onPressed: () => go(context, const TermsScreen()), child: const Text('Open'))),
+            const _Row('Help and support', SizedBox(), sub: kWebsite),
             _Row('Export data', TextButton(
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: s.exportJson()));
@@ -768,8 +770,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ]),
             _Wide(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text(
-                'Billed by the App Store or Google Play after the 7-day trial. We remind you 2 days before it ends. '
-                'To cancel: Settings → your name → Subscriptions (iPhone/iPad), or Play Store → Payments & subscriptions (Android). '
+                'Explorer Plus is an auto-renewing subscription: Yearly (12 months) or Monthly (1 month), each with a 7-day free trial. '
+                'Payment is charged to your Apple ID or Google Play account when the trial ends. The subscription renews automatically '
+                'unless it is cancelled at least 24 hours before the end of the current period, and your account is charged for renewal '
+                'within 24 hours before the period ends. We remind you 2 days before the trial ends. '
+                'Manage or cancel any time: Settings → your name → Subscriptions (iPhone/iPad), or Play Store → Payments & subscriptions (Android). '
                 'Prices shown by your store may differ by country.',
                 style: nunito(12.5, weight: 600, color: Colors.white.withValues(alpha: .8), height: 1.5),
               ),
@@ -778,7 +783,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 TextButton(onPressed: sub.restore, child: Text('Restore purchases', style: nunito(13, weight: 800, color: Colors.white))),
                 TextButton(
                     onPressed: () => go(context, const PrivacyScreen()),
-                    child: Text('Privacy', style: nunito(13, weight: 800, color: Colors.white))),
+                    child: Text('Privacy Policy', style: nunito(13, weight: 800, color: Colors.white))),
+                TextButton(
+                    onPressed: () => go(context, const TermsScreen()),
+                    child: Text('Terms of Use (EULA)', style: nunito(13, weight: 800, color: Colors.white))),
               ]),
             ])),
           ],
@@ -818,8 +826,8 @@ Laws and store rules we follow
 • US COPPA, EU GDPR, the Australian Privacy Act and the UK Age Appropriate Design Code principles: data minimisation, high-privacy defaults and no nudges to share data.
 • Apple Kids Category (guidelines 1.3 and 5.1.4) and the Google Play Families Policy: no third-party advertising or analytics, no advertising ID, and a parental gate before purchases and settings.
 
-Contact
-• Add your support email address here before publishing.
+Website and contact
+• Full policy, support and data deletion steps: $kWebsite
 ''';
 
 class PrivacyScreen extends StatelessWidget {
@@ -829,6 +837,47 @@ class PrivacyScreen extends StatelessWidget {
         title: 'Privacy policy',
         cards: [
           _Wide(_Card(child: SelectableText(privacyPolicy.trim(), style: nunito(14.5, weight: 600, color: C.ink, height: 1.5)))),
+        ],
+      );
+}
+
+// ---------------------------------------------------------------- terms
+
+/// Public website with the privacy policy, terms and support.
+const kWebsite = 'stephenmwangi40.github.io/little-explorers';
+
+const termsOfUse = '''
+These terms apply to the Little Explorers app.
+
+The app
+• Little Explorers is an educational app for children aged 3 to 6, used with a parent or carer. The free version includes the daily adventure and the first level of each world. Explorer Plus unlocks every level.
+
+Subscriptions
+• Explorer Plus is an auto-renewing subscription (Yearly or Monthly) with a 7-day free trial, bought through the App Store or Google Play.
+• Payment is charged to your store account when the trial ends. It renews automatically unless cancelled at least 24 hours before the end of the current period.
+• Manage or cancel in your store account settings. Deleting the app does not cancel a subscription.
+• Refunds are handled by Apple or Google under their policies.
+
+Apple users
+• If you downloaded the app from the App Store, Apple's standard Licensed Application End User License Agreement (EULA) also applies: apple.com/legal/internet-services/itunes/dev/stdeula
+
+Your data
+• See the Privacy Policy. Everything is stored on your device. There are no ads, no tracking and no chat.
+
+Content
+• Lessons support (but are not certified by) the early-learning frameworks shown in the Learning Report. They do not replace a teacher or school assessment.
+
+Contact
+• See the support page: $kWebsite/support
+''';
+
+class TermsScreen extends StatelessWidget {
+  const TermsScreen({super.key});
+  @override
+  Widget build(BuildContext context) => _ParentPage(
+        title: 'Terms of Use',
+        cards: [
+          _Wide(_Card(child: SelectableText(termsOfUse.trim(), style: nunito(14.5, weight: 600, color: C.ink, height: 1.5)))),
         ],
       );
 }

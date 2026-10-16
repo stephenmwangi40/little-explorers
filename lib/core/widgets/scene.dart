@@ -116,11 +116,12 @@ class Coach extends StatelessWidget {
     final captions = AppScope.of(context).settings.captions;
     return Responsive(builder: (context, l) {
       final s = l.large ? size * 1.25 : size;
+      final m = mood == TikoMood.bob ? (GameMood.maybeOf(context) ?? mood) : mood;
       return Row(
         mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Tiko(size: s, mood: mood),
+          Tiko(size: s, mood: m),
           const SizedBox(width: 8),
           Flexible(
             child: Padding(
@@ -170,3 +171,12 @@ Future<T?> go<T>(BuildContext context, Widget page, {bool replace = false}) {
 }
 
 void goHome(BuildContext context) => Navigator.of(context).popUntil((r) => r.isFirst);
+
+/// Lets a game screen set Tiko's mood (cheer when right, think on a miss).
+class GameMood extends InheritedWidget {
+  final TikoMood mood;
+  const GameMood({super.key, required this.mood, required super.child});
+  static TikoMood? maybeOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<GameMood>()?.mood;
+  @override
+  bool updateShouldNotify(GameMood old) => old.mood != mood;
+}

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../content/levels.dart';
 import '../core/audio.dart';
@@ -62,6 +63,10 @@ class _GameShellState extends State<GameShell> {
   int _earned = 0;
   bool _busy = false;
   String _coach = '';
+  // Duolingo-style instant feedback banner: null, true (right) or false (try again).
+  bool? _feedback;
+  String _feedbackText = '';
+  int _feedbackId = 0;
   late int _rounds;
   final _rng = Random();
   Timer? _t;
@@ -95,7 +100,10 @@ class _GameShellState extends State<GameShell> {
     final s = AppScope.read(context);
     s.recordAnswer(skill ?? level.skill, ok: true, hint: _hint > 0);
     Audio.I.sfx('correct');
-    _say(praise ?? const ['Yes! Well done!', 'You got it!', 'Brilliant!', 'That’s right!'][_rng.nextInt(4)]);
+    HapticFeedback.mediumImpact();
+    final line = praise ?? const ['Yes! Well done!', 'You got it!', 'Brilliant!', 'That’s right!'][_rng.nextInt(4)];
+    _showFeedback(true, line);
+    _say(line);
     _earned++;
     _t = Timer(const Duration(milliseconds: 1300), _next);
   }
@@ -105,7 +113,9 @@ class _GameShellState extends State<GameShell> {
     final s = AppScope.read(context);
     s.recordAnswer(skill ?? level.skill, ok: false);
     Audio.I.sfx('try');
+    HapticFeedback.lightImpact();
     setState(() => _hint++);
+    _showFeedback(false, _hint >= 3 ? (model ?? 'Let’s do it together!') : (hint ?? 'Nice try! Listen again.'));
     if (_hint >= 3) {
       // Hint step 3: do it together, then move on kindly.
       _busy = true;
@@ -118,8 +128,23 @@ class _GameShellState extends State<GameShell> {
     }
   }
 
+  void _showFeedback(bool right, String text) {
+    if (!mounted) return;
+    final id = ++_feedbackId;
+    setState(() {
+      _feedback = right;
+      _feedbackText = text;
+    });
+    if (!right) {
+      Timer(const Duration(milliseconds: 2600), () {
+        if (mounted && _feedbackId == id) setState(() => _feedback = null);
+      });
+    }
+  }
+
   void _next() {
     if (!mounted) return;
+    _feedback = null;
     if (_round + 1 >= _rounds) {
       final s = AppScope.read(context);
       s.completeLevel(level, learned: widget.adventure ? learnedLabel(level) : null);
@@ -181,10 +206,23 @@ class _GameShellState extends State<GameShell> {
         ]),
         const SizedBox(height: 10),
         Expanded(
-          child: KeyedSubtree(
-            key: ValueKey('${level.id}-$_round'),
-            child: buildGame(level, api, _coach),
-          ),
+          child: Stack(children: [
+            Positioned.fill(
+              child: GameMood(
+                mood: _feedback == null ? TikoMood.bob : (_feedback! ? TikoMood.cheer : TikoMood.think),
+                child: KeyedSubtree(
+                  key: ValueKey('${level.id}-$_round'),
+                  child: buildGame(level, api, _coach),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: IgnorePointer(child: FeedbackBanner(right: _feedback, text: _feedbackText)),
+            ),
+          ]),
         ),
       ]),
     );
@@ -400,3 +438,57 @@ List<int> pickNumbers(Random r, int must, int count, int from, int to) {
 
 /// Primary call-to-action used by several games.
 Widget doneButton(String text, VoidCallback onTap) => ChunkyButton.text(text, onTap: onTap);
+
+/// Instant feedback after every answer: a big, clear banner (solid colour,
+/// icon + words, so colour is never the only cue). Never says "wrong".
+class FeedbackBanner extends StatelessWidget {
+  final bool? right;
+  final String text;
+  const FeedbackBanner({super.key, required this.right, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final show = right != null;
+    final ok = right ?? true;
+    final still = reduceMotion(context);
+    return AnimatedSlide(
+      offset: show ? Offset.zero : const Offset(0, -1.4),
+      duration: still ? Duration.zero : const Duration(milliseconds: 280),
+      curve: Curves.easeOutBack,
+      child: AnimatedOpacity(
+        opacity: show ? 1 : 0,
+        duration: still ? Duration.zero : const Duration(milliseconds: 200),
+        child: Semantics(
+          liveRegion: true,
+          label: show ? text : null,
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.fromLTRB(12, 10, 18, 10),
+            decoration: BoxDecoration(
+              color: ok ? C.green : const Color(0xFFFFC94D),
+              borderRadius: BorderRadius.circular(22),
+              boxShadow: [BoxShadow(color: ok ? C.greenDark : C.amberDark, offset: const Offset(0, 5))],
+            ),
+            child: Row(children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                child: Icon(ok ? Icons.check_rounded : Icons.lightbulb_rounded, color: ok ? C.greenDark : C.amberDark, size: 28),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  ok ? text : 'Nearly! $text',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: baloo(19, color: ok ? Colors.white : C.ink, height: 1.15),
+                ),
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
