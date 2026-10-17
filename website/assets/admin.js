@@ -37,7 +37,13 @@
   function signOut() {
     pass(null);
     $('dash').hidden = true;
+    $('signout').hidden = true;
     $('login').hidden = false;
+  }
+  function signedIn() {
+    $('login').hidden = true;
+    $('dash').hidden = false;
+    $('signout').hidden = false;
   }
 
   // ---------------------------------------------------------- sign in
@@ -47,8 +53,7 @@
     try {
       await refresh();
       $('password').value = '';
-      $('login').hidden = true;
-      $('dash').hidden = false;
+      signedIn();
       notice($('login-status'), '', true);
     } catch (err) {
       pass(null);
@@ -182,6 +187,6 @@
   });
 
   if (pass()) {
-    refresh().then(function () { $('login').hidden = true; $('dash').hidden = false; }).catch(function () { pass(null); });
+    refresh().then(signedIn).catch(function () { pass(null); });
   }
 })();

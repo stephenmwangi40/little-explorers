@@ -587,7 +587,8 @@ class SettingsScreen extends StatelessWidget {
             _Row('Cloud backup', _toggle(false, (_) {}, enabled: false), sub: 'Off · needs a parent account (coming later)'),
             _Row('Privacy policy', TextButton(onPressed: () => go(context, const PrivacyScreen()), child: const Text('Open'))),
             _Row('Terms of Use', TextButton(onPressed: () => go(context, const TermsScreen()), child: const Text('Open'))),
-            const _Row('Help and support', SizedBox(), sub: kWebsite),
+            const _Row('Help and support', SizedBox(), sub: '$kWebsite/support'),
+            const _Row('App version', Text(kAppVersion)),
             _Row('Export data', TextButton(
               onPressed: () async {
                 await Clipboard.setData(ClipboardData(text: s.exportJson()));
@@ -890,7 +891,11 @@ class PrivacyScreen extends StatelessWidget {
 // ---------------------------------------------------------------- terms
 
 /// Public website with the privacy policy, terms and support.
-const kWebsite = 'stephenmwangi40.github.io/little-explorers';
+const kWebsite = 'little-explorers-app.pages.dev';
+
+/// Shown in Settings so parents can tell support which version they have.
+/// Keep in step with pubspec.yaml (a test checks this).
+const kAppVersion = '1.4.0';
 
 const termsOfUse = '''
 These terms apply to the Little Explorers app.
