@@ -98,6 +98,8 @@ if ((await admin.getAttribute('#layout', 'data-view')) !== 'home') fail('Home di
 if (!(await admin.isVisible('.list-pane'))) fail('list not visible after Home');
 ok('Home button returns to the list');
 // Live resize to desktop: two columns, no reload.
+await admin.click('#show-all');
+await admin.waitForSelector(`.ticket:has-text("${id}")`, { timeout: 10000 });
 await admin.click(`.ticket:has-text("${id}")`);
 await admin.setViewportSize({ width: 1280, height: 800 });
 await admin.waitForTimeout(200);
