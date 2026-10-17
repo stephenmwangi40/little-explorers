@@ -1,7 +1,8 @@
 // Support form and "check my request" for parents.
 (function () {
   'use strict';
-  var API = /little-explorers-app\.pages\.dev$/.test(location.hostname) ? '' : 'https://little-explorers-app.pages.dev';
+  // Same site normally; the GitHub Pages backup copy talks to the Cloudflare API.
+  var API = /github\.io$/.test(location.hostname) ? 'https://little-explorers-app.pages.dev' : '';
   var $ = function (id) { return document.getElementById(id); };
 
   function store(key, value) {
