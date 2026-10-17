@@ -54,7 +54,7 @@ const things = <Thing>[
   Thing('shorts', '🩳', 'clothes'), Thing('cap', '🧢', 'clothes'), Thing('jeans', '👖', 'clothes'),
   // toys and things
   Thing('ball', '⚽', 'toy'), Thing('teddy', '🧸', 'toy'), Thing('kite', '🪁', 'toy'), Thing('yo-yo', '🪀', 'toy'),
-  Thing('blocks', '🧱', 'toy'), Thing('puzzle', '🧩', 'toy'), Thing('balloon', '🎈', 'toy'), Thing('drum', '🥁', 'toy'),
+  Thing('blocks', '🧱', 'toy'), Thing('puzzle', '🧩', 'toy'), Thing('balloon', '🎈', 'toy'),
   // home
   Thing('bed', '🛏️', 'home'), Thing('chair', '🪑', 'home'), Thing('door', '🚪', 'home'), Thing('lamp', '💡', 'home'),
   Thing('clock', '🕰️', 'home'), Thing('bath', '🛁', 'home'), Thing('key', '🔑', 'home'), Thing('cup', '☕', 'home'),
@@ -69,10 +69,47 @@ const things = <Thing>[
 ];
 
 const categoryNames = {
-  'animal': 'an animal', 'fruit': 'a fruit', 'vegetable': 'a vegetable', 'vehicle': 'something we ride in',
+  'animal': 'an animal', 'fruit': 'a fruit', 'vegetable': 'a vegetable', 'vehicle': 'a vehicle',
   'clothes': 'something we wear', 'toy': 'a toy', 'home': 'something in a home', 'nature': 'something in nature',
   'music': 'a musical instrument',
 };
+
+/// Groups used for "Which one is ...?" questions: each item clearly
+/// belongs to exactly one of them.
+const clearCategories = ['animal', 'fruit', 'vegetable', 'vehicle', 'clothes', 'toy', 'music'];
+
+/// Groups never used as wrong answers for each other (a child could fairly
+/// argue for them: a tomato is a fruit, a teddy is a bear, a bell is a toy).
+const categoryConflicts = <String, Set<String>>{
+  'fruit': {'vegetable'},
+  'vegetable': {'fruit'},
+  'animal': {'toy'},
+  'toy': {'animal', 'music'},
+  'music': {'toy'},
+};
+
+/// Words that could also be a fair answer for each other in opposites.
+const oppositeGroups = <Set<String>>[
+  {'big', 'small', 'tall', 'short', 'heavy', 'light'},
+  {'hot', 'cold', 'summer', 'winter'},
+  {'day', 'night', 'awake', 'asleep'},
+  {'fast', 'slow'},
+  {'happy', 'sad'},
+  {'up', 'down', 'left', 'right'},
+  {'hard', 'soft'},
+];
+
+/// Things that could fairly do each other's job in "What do we use to ...?".
+const useConflicts = <Set<String>>[
+  {'clock', 'phone'},
+  {'camera', 'phone'},
+  {'headphones', 'phone'},
+  {'chair', 'bed'},
+  {'pencil', 'paintbrush'},
+  {'spoon', 'cup'},
+  {'school bag', 'bucket'},
+  {'soap', 'tissue'},
+];
 
 const opposites = <List<(String, String)>>[
   [('hot', '🔥'), ('cold', '❄️')], [('big', '🐘'), ('small', '🐭')], [('day', '☀️'), ('night', '🌙')],
@@ -88,8 +125,8 @@ const colours = <String, (int, List<String>)>{
   'yellow': (0xFFFFD166, ['🍌', '🌻', '🐥', '⭐', '🍋', '🧀']),
   'green': (0xFF3DBE7A, ['🥦', '🐸', '🍀', '🥒', '🌳', '🦖']),
   'blue': (0xFF4DA3FF, ['🐳', '🫐', '🦋', '💙', '🧢', '🚙']),
-  'orange': (0xFFFF9F1C, ['🥕', 'orange', '🎃', '🦊', '🏀', '🦁']),
-  'purple': (0xFF9B6BFF, ['🍇', '🍆', '☂️', '💜', '🔮', '🦄']),
+  'orange': (0xFFFF9F1C, ['🥕', 'orange', '🎃', '🦊', '🏀']),
+  'purple': (0xFF9B6BFF, ['🍇', '🍆', '💜']),
   'brown': (0xFF8B5E3C, ['🐻', '🌰', '🪵', '🍫', '🥔', '🐴']),
   'white': (0xFFFFFFFF, ['⛄', '🥚', '☁️', '🦢', '🥛', '🐑']),
 };
@@ -100,9 +137,9 @@ const uses = <(String, String, String)>[
   ('sweep the floor', '🧹', 'broom'), ('tell the time', '⏰', 'clock'), ('call someone', '📱', 'phone'),
   ('stay dry in the rain', '☂️', 'umbrella'), ('sit on', '🪑', 'chair'), ('sleep in', '🛏️', 'bed'),
   ('paint a picture', '🖌️', 'paintbrush'), ('cook food', '🍳', 'pan'), ('drink from', '🥤', 'cup'),
-  ('build things', '🔨', 'hammer'), ('read a story', '📖', 'book'), ('carry things', '🎒', 'backpack'),
+  ('build things', '🔨', 'hammer'), ('read a story', '📖', 'book'), ('carry books to school', '🎒', 'school bag'),
   ('take a photo', '📷', 'camera'), ('wash our hands', '🧼', 'soap'), ('blow our nose', '🧻', 'tissue'),
-  ('comb our hair', '🪮', 'comb'), ('dig in the sand', '🪣', 'bucket'), ('listen to music', '🎧', 'headphones'),
+  ('comb our hair', '🪮', 'comb'), ('carry water', '🪣', 'bucket'), ('listen to music', '🎧', 'headphones'),
 ];
 
 /// Generates a Word Garden question of [kind] for round [round].
@@ -121,11 +158,15 @@ QuizQ wordQuestion(String kind, int round, int offset, int choices, Random r) {
       return QuizQ('Find the ${t.word}!', null, [for (final o in opts) o.pic], [for (final o in opts) o.word],
           opts.indexOf(t), 'That’s the ${t.word}!');
     case 'category':
-      final cats = categoryNames.keys.toList();
+      // Only clear-cut groups ("in a home" or "in nature" can overlap).
+      final cats = clearCategories;
       final cat = cats[(offset + round) % cats.length];
       final inCat = things.where((x) => x.cat == cat).toList();
       final right = inCat[r.nextInt(inCat.length)];
-      final notCat = things.where((x) => x.cat != cat && !(cat == 'fruit' && x.cat == 'vegetable')).toList()..shuffle(r);
+      final notCat = things
+          .where((x) => x.cat != cat && !(categoryConflicts[cat] ?? const <String>{}).contains(x.cat))
+          .toList()
+        ..shuffle(r);
       final opts = [right, ...notCat.take(choices - 1)]..shuffle(r);
       return QuizQ('Which one is ${categoryNames[cat]}?', null, [for (final o in opts) o.pic],
           [for (final o in opts) o.word], opts.indexOf(right), 'Yes, a ${right.word} is ${categoryNames[cat]}.');
@@ -134,7 +175,11 @@ QuizQ wordQuestion(String kind, int round, int offset, int choices, Random r) {
       final flip = r.nextBool();
       final a = flip ? pair[1] : pair[0], b = flip ? pair[0] : pair[1];
       final seen = <String>{a.$2, b.$2};
-      final others = [for (final p in opposites) if (!identical(p, pair)) ...p].where((o) => seen.add(o.$2)).toList()..shuffle(r);
+      final group = oppositeGroups.firstWhere((g) => g.contains(a.$1), orElse: () => {a.$1, b.$1});
+      final others = [for (final p in opposites) if (!identical(p, pair)) ...p]
+          .where((o) => !group.contains(o.$1) && seen.add(o.$2))
+          .toList()
+        ..shuffle(r);
       final opts = [b, ...others.take(choices - 1)]..shuffle(r);
       return QuizQ('What is the opposite of ${a.$1}?', a.$2, [for (final o in opts) o.$2], [for (final o in opts) o.$1],
           opts.indexOf(b), 'The opposite of ${a.$1} is ${b.$1}.');
@@ -149,7 +194,8 @@ QuizQ wordQuestion(String kind, int round, int offset, int choices, Random r) {
     case 'use':
     default:
       final u = uses[(offset + round * 5 + r.nextInt(3)) % uses.length];
-      final opts = pick(u, uses, choices);
+      bool clash(String x) => useConflicts.any((c) => c.contains(u.$3) && c.contains(x));
+      final opts = pick(u, uses.where((o) => !clash(o.$3)).toList(), choices);
       return QuizQ('What do we use to ${u.$1}?', null, [for (final o in opts) o.$2], [for (final o in opts) o.$3],
           opts.indexOf(u), 'We use a ${u.$3} to ${u.$1}.');
   }
@@ -173,7 +219,6 @@ const healthQs = <HealthQ>[
   HealthQ('clean', 'What do we do after the toilet?', [('🧼', 'wash hands'), ('🏃', 'run away'), ('😴', 'go to sleep')], 'Wash your hands after the toilet.'),
   HealthQ('clean', 'What gets us clean all over?', [('🛁', 'a bath'), ('🟫', 'mud'), ('🍝', 'spaghetti')], 'A bath or shower washes your body.'),
   HealthQ('clean', 'How many times a day do we brush our teeth?', [('txt:2', 'two times'), ('txt:0', 'zero'), ('txt:9', 'nine')], 'Brush twice a day: morning and bedtime.'),
-  HealthQ('clean', 'What do we use to dry our hands?', [('🧺', 'a towel'), ('🔥', 'a fire'), ('🧊', 'ice')], 'A clean towel dries your hands.'),
   // healthy food and drink
   HealthQ('food', 'What is the best drink when you are thirsty?', [('💧', 'water'), ('🥤', 'fizzy drink'), ('🧃', 'sweet juice')], 'Water is the best drink for your body.'),
   HealthQ('food', 'Which food helps you grow strong?', [('🥦', 'broccoli'), ('🍭', 'lollipop'), ('🍩', 'doughnut')], 'Vegetables help you grow.'),

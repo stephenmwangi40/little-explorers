@@ -1,0 +1,9 @@
+# Cloudflare Pages project: information website + support API.
+name = "little-explorers-app"
+pages_build_output_dir = "website"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "little-explorers-support"
+database_id = "20f98863-246a-4277-bb89-85869b089b4d"

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Support dashboard · Little Explorers</title>
+<meta name="description" content="Support dashboard">
+<meta name="theme-color" content="#7ED3F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#2E3A5C" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Support dashboard · Little Explorers"><meta property="og:description" content="Support dashboard">
+<meta property="og:image" content="../assets/icon.png">
+<link rel="icon" href="../assets/icon.png">
+<link rel="apple-touch-icon" href="../assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="blobs" aria-hidden="true"><i></i><i></i><i></i></div>
+<header class="top wrap">
+  <div class="glass strong bar">
+    <a class="brand" href="../"><svg class="owl" viewBox="0 0 120 124" role="img" aria-label="Tiko the owl">
+<ellipse cx="60" cy="119" rx="30" ry="4.5" fill="rgba(31,42,68,.15)"/>
+<path d="M28 34L33 9L50 26Z" fill="#4E3FC9"/><path d="M92 34L87 9L70 26Z" fill="#4E3FC9"/>
+<ellipse cx="20" cy="74" rx="10" ry="22" fill="#4E3FC9"/><ellipse cx="100" cy="74" rx="10" ry="22" fill="#4E3FC9"/>
+<ellipse cx="60" cy="66" rx="42" ry="46" fill="#6C5CE7"/><ellipse cx="60" cy="84" rx="25" ry="24" fill="#FFE8B6"/>
+<path d="M50 82q4 4 8 0M62 82q4 4 8 0M56 92q4 4 8 0" fill="none" stroke="#F2C879" stroke-width="2.2" stroke-linecap="round"/>
+<g class="eyes"><circle cx="44" cy="52" r="15" fill="#fff"/><circle cx="76" cy="52" r="15" fill="#fff"/><circle cx="46" cy="54" r="7.5" fill="#1F2A44"/><circle cx="74" cy="54" r="7.5" fill="#1F2A44"/><circle cx="48.5" cy="51" r="2.6" fill="#fff"/><circle cx="76.5" cy="51" r="2.6" fill="#fff"/></g>
+<path d="M53 66L67 66L60 76Z" fill="#FF9F1C"/><circle cx="30" cy="69" r="5" fill="#FF8FAB"/><circle cx="90" cy="69" r="5" fill="#FF8FAB"/>
+<ellipse cx="48" cy="111" rx="8" ry="4" fill="#FF9F1C"/><ellipse cx="72" cy="111" rx="8" ry="4" fill="#FF9F1C"/></svg><span>Little Explorers</span></a>
+    <nav aria-label="Main"><a href="../">Home</a><a href="../parents/">For parents</a><a href="../privacy/">Privacy</a><a href="../terms/">Terms</a><a href="../support/">Support</a></nav>
+    <button class="menu" aria-expanded="false" aria-controls="sheet" aria-label="Menu" onclick="var s=document.getElementById('sheet');var o=s.classList.toggle('open');this.setAttribute('aria-expanded',o)">☰</button>
+  </div>
+  <div id="sheet" class="glass strong sheet"><a href="../">Home</a><a href="../parents/">For parents</a><a href="../privacy/">Privacy</a><a href="../terms/">Terms</a><a href="../support/">Support</a></div>
+</header>
+<main id="main" class="wrap">
+<article class="glass prose" style="max-width:1120px">
+<div class="actions" style="justify-content:space-between"><h1 style="margin:0">Support dashboard</h1><button id="signout" class="btn ghost" type="button">Sign out</button></div>
+<p id="elsewhere" hidden>The dashboard only works on the Cloudflare site: <a href="https://little-explorers-app.pages.dev/admin/">little-explorers-app.pages.dev/admin</a></p>
+
+<form id="login" class="form" style="max-width:420px">
+  <p>Grown-up staff only. Enter the admin password.</p>
+  <label>Admin password <input id="password" type="password" autocomplete="current-password" required></label>
+  <div class="actions"><button class="btn" type="submit">Sign in</button><p id="login-status" class="notice" hidden></p></div>
+</form>
+
+<div id="dash" hidden>
+  <div class="stats">
+    <div class="glass stat"><b id="count-unread">0</b>New</div>
+    <div class="glass stat"><b id="count-open">0</b>Waiting</div>
+    <div class="glass stat"><b id="count-answered">0</b>Answered</div>
+    <div class="glass stat"><b id="count-closed">0</b>Closed</div>
+  </div>
+  <div class="admin-grid">
+    <section aria-label="Requests">
+      <div class="tabs">
+        <button type="button" data-filter="open" aria-pressed="true">Waiting</button>
+        <button type="button" data-filter="answered" aria-pressed="false">Answered</button>
+        <button type="button" data-filter="closed" aria-pressed="false">Closed</button>
+        <button type="button" data-filter="all" aria-pressed="false">All</button>
+        <button type="button" id="reload" aria-label="Refresh">↻</button>
+      </div>
+      <ul id="tickets" class="tickets"></ul>
+    </section>
+    <section aria-label="Conversation">
+      <p id="detail-empty" class="glass made">Choose a request to read and reply.</p>
+      <div id="detail" class="glass made" hidden>
+        <div class="actions" style="justify-content:space-between"><h2 id="d-title" style="margin:0;font-size:1.3rem"></h2><span id="d-status" class="pill-status"></span></div>
+        <small id="d-meta"></small>
+        <ul id="d-messages" class="messages"></ul>
+        <form id="reply" class="form">
+          <div class="templates" aria-label="Reply templates">
+            <button type="button" data-template="Thank you for getting in touch. To cancel: on iPhone or iPad go to Settings → your name → Subscriptions; on Android open Google Play → Payments &amp; subscriptions → Subscriptions. Cancel at least 24 hours before the renewal date.">Cancel help</button>
+            <button type="button" data-template="Thank you for getting in touch. Please open Grown-ups → Explorer Plus → Restore purchases, using the same Apple ID or Google account you bought with.">Restore help</button>
+            <button type="button" data-template="Thank you for letting us know. We're looking into this and will update you here soon.">Looking into it</button>
+            <button type="button" data-template="Thank you for your message. Is there anything else we can help with? If not, we'll close this request in a few days.">Wrap up</button>
+          </div>
+          <label>Your reply <textarea id="reply-text" maxlength="4000" required></textarea></label>
+          <div class="actions">
+            <button class="btn" type="submit">Send reply</button>
+            <button class="btn ghost" type="button" id="close">Mark closed</button>
+            <button class="btn ghost" type="button" id="reopen" hidden>Reopen</button>
+            <button class="btn danger" type="button" id="delete">Delete</button>
+          </div>
+          <p id="d-status-msg" class="notice" hidden></p>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
+</article>
+
+</main>
+<footer class="wrap">
+  <div class="glass bar">
+    <small>© 2026 Little Explorers · Made for children aged 3–6 and their grown-ups</small>
+    <small><a href="../privacy/">Privacy Policy</a> · <a href="../terms/">Terms of Use</a> · <a href="../support/">Support</a></small>
+  </div>
+</footer>
+<script src="../assets/admin.js" defer></script>
+</body>
+</html>

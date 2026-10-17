@@ -301,7 +301,12 @@ class _OddState extends State<OddOneOutGame> {
     final r = widget.api.rng;
     final useThings = widget.level.difficulty >= 2 && r.nextBool();
     if (useThings) {
-      final cats = categoryNames.keys.toList()..shuffle(r);
+      // Two clear groups that cannot be confused (never fruit with vegetable,
+      // or a teddy with animals).
+      final cats = [...clearCategories]..shuffle(r);
+      while ((categoryConflicts[cats[0]] ?? const <String>{}).contains(cats[1])) {
+        cats.shuffle(r);
+      }
       final same = things.where((t) => t.cat == cats[0]).toList()..shuffle(r);
       final other = things.where((t) => t.cat == cats[1]).toList()..shuffle(r);
       final list = [...same.take(3), other.first]..shuffle(r);

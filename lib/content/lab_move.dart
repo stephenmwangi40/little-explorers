@@ -76,11 +76,11 @@ const labTopics = <LabTopic>[
   ]),
   LabTopic('plant', 'Grow a bean', _plantQ, ['💧', '🍬', '☀️'], ['Water', 'Sweets', 'Sunlight'], [
     LabItem('🌱', 'What does a plant drink?', 0, 'Water! Roots drink water from the soil.'),
-    LabItem('🌿', 'What helps leaves make food?', 2, 'Sunlight! Leaves use sunlight to make food.'),
-    LabItem('🌷', 'What do flowers need to grow?', 0, 'Water! And sunlight and soil too.'),
+    LabItem('🌿', 'What shines on leaves to help them make food?', 2, 'Sunlight! Leaves catch sunlight to make food.'),
+    LabItem('🌷', 'What do we pour on a thirsty flower?', 0, 'Water! Roots soak it up from the soil.'),
     LabItem('🌰', 'What wakes up a seed in the soil?', 0, 'Water! A seed needs water to start growing.'),
-    LabItem('🪴', 'Where should we put a plant?', 2, 'In the sunlight! Plants grow toward the light.'),
-    LabItem('🌾', 'What makes grass green and tall?', 2, 'Sunlight! And rain to drink.'),
+    LabItem('🪴', 'Plants on a shelf lean towards the window. What light are they reaching for?', 2, 'Sunlight! Plants grow toward the light.'),
+    LabItem('🌾', 'What gives plants light?', 2, 'Sunlight! Plants use light to make their food.'),
   ]),
   LabTopic('light', 'Shadows', _lightQ, ['👤', '✨'], ['Shadow', 'No shadow'], [
     LabItem('✋', 'hand', 0, 'Yes! Your hand blocks the light, so it makes a shadow.'),
@@ -194,9 +194,7 @@ const moreLabTopics = <LabTopic>[
     LabItem('🐔', 'hen', 0, 'A chick! Chicks hatch from eggs.'),
     LabItem('🐄', 'cow', 1, 'A calf! Calves drink their mother’s milk.'),
     LabItem('🐸', 'frog', 2, 'A tadpole! Tadpoles grow legs and become frogs.'),
-    LabItem('🦆', 'duck', 0, 'A duckling! It hatches from an egg, like a chick.'),
     LabItem('🐘', 'elephant', 1, 'A calf! Baby elephants are called calves too.'),
-    LabItem('🦢', 'swan', 0, 'A cygnet! It hatches from an egg, like a chick.'),
   ]),
   LabTopic('eat', 'What do animals eat?', _eatQ, ['🥕', '🐟', '🌾'], ['Carrots', 'Fish', 'Seeds'], [
     LabItem('🐰', 'rabbit', 0, 'Carrots and leafy greens!'),
@@ -247,7 +245,6 @@ const extraLabTopics = <LabTopic>[
     LabItem('⛄', 'snowman', 0, 'It melts! Snow is frozen water.'),
     LabItem('🍫', 'chocolate bar', 0, 'It melts! Chocolate goes soft in the heat.'),
     LabItem('🥄', 'spoon', 1, 'It stays the same. Metal needs much more heat to melt.'),
-    LabItem('🕯️', 'candle wax', 0, 'It melts slowly when it is very warm.'),
   ]),
   LabTopic('push', 'Push or pull?', _pushQ, ['👉', '👈'], ['Push', 'Pull'], [
     LabItem('🛒', 'shopping trolley', 0, 'Push! We push a trolley in front of us.'),

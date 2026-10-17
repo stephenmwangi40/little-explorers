@@ -93,6 +93,49 @@ footer{padding:22px 0 40px}
 footer .bar{padding:18px 20px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
 footer a{color:var(--ink)}
 footer small{color:var(--muted)}
+/* Forms */
+.form{display:grid;gap:14px}
+.form .row2{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+label{display:grid;gap:6px;font-weight:800}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--glass-strong);border:1.5px solid var(--edge);border-radius:16px;padding:12px 14px;width:100%}
+textarea{min-height:130px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button.btn{border:0;cursor:pointer;font:inherit;font-weight:800}
+button.btn[disabled]{opacity:.6;cursor:wait}
+.btn.ghost{background:var(--glass-strong);color:var(--ink);box-shadow:0 5px 0 rgba(31,42,68,.18)}
+.btn.danger{background:#D64545;box-shadow:0 5px 0 #A83232}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.notice{padding:10px 14px;border-radius:14px;font-weight:800;margin:0}
+.notice.ok{background:rgba(61,190,122,.18)}.notice.bad{background:rgba(214,69,69,.18)}
+.made{padding:18px;border:2px dashed var(--edge);border-radius:20px}
+.code{font:800 1.4rem/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.08em}
+/* Conversations */
+.pill-status{display:inline-block;padding:3px 10px;border-radius:10px;font-weight:800;font-size:.8rem;text-transform:capitalize;background:var(--glass-strong)}
+.pill-status.open{background:#FFD166;color:#1F2A44}.pill-status.answered{background:#3DBE7A;color:#fff}.pill-status.closed{background:#C5CFDD;color:#1F2A44}
+.messages{list-style:none;padding:0;margin:12px 0;display:grid;gap:10px}
+.bubble-msg{padding:12px 16px;border-radius:18px;max-width:85%;background:var(--glass-strong);border:1.5px solid var(--edge)}
+.bubble-msg.support{justify-self:end;background:#6C5CE7;color:#fff;border-color:#6C5CE7}
+.bubble-msg p{margin:.3em 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.bubble-msg small{opacity:.75}
+/* Admin */
+.admin-grid{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:16px;align-items:start}
+@media (max-width:900px){.admin-grid{grid-template-columns:1fr}}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.stat{padding:12px;text-align:center}.stat b{display:block;font:800 1.6rem "Baloo 2",system-ui}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button{font:inherit;font-weight:800;border:1.5px solid var(--edge);background:var(--glass);color:var(--ink);padding:8px 14px;border-radius:14px;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.tickets{list-style:none;padding:0;margin:0;display:grid;gap:8px;max-height:70vh;overflow:auto}
+.ticket-row{width:100%;text-align:left;font:inherit;color:var(--ink);display:grid;gap:4px;padding:12px 14px;border-radius:16px;border:1.5px solid var(--edge);background:var(--glass);cursor:pointer}
+.ticket-row.unread{border-color:#FFB703;box-shadow:inset 4px 0 0 #FFB703}
+.ticket-row.active{background:var(--glass-strong)}
+.row-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.row-topic{font-weight:800}.row-last{color:var(--muted);font-size:.92rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tickets .empty{padding:14px;color:var(--muted);font-weight:700}
+.templates{display:flex;gap:6px;flex-wrap:wrap}
+.templates button{font:inherit;font-size:.85rem;font-weight:800;border:1.5px solid var(--edge);background:var(--glass);color:var(--ink);padding:6px 10px;border-radius:12px;cursor:pointer}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:99;background:#fff;padding:10px;border-radius:10px}
 a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media (prefers-reduced-motion:no-preference){.owl .eyes{transform-box:fill-box;transform-origin:center;animation:blink 4.2s infinite}}
@@ -107,7 +150,7 @@ const pages = <String, String>{
   'support': 'Support',
 };
 
-String page(String slug, String title, String description, String body) {
+String page(String slug, String title, String description, String body, {String head = '', String scripts = ''}) {
   final depth = slug.isEmpty ? '' : '../';
   final nav = pages.entries
       .map((e) => '<a href="$depth${e.key.isEmpty ? '' : '${e.key}/'}"${e.key == slug ? ' aria-current="page"' : ''}>${e.value}</a>')
@@ -129,6 +172,7 @@ String page(String slug, String title, String description, String body) {
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${depth}assets/site.css">
+$head
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -150,6 +194,7 @@ $body
     <small><a href="${depth}privacy/">Privacy Policy</a> · <a href="${depth}terms/">Terms of Use</a> · <a href="${depth}support/">Support</a></small>
   </div>
 </footer>
+$scripts
 </body>
 </html>
 ''';
@@ -274,7 +319,7 @@ const privacy = '''
 <p>Little Explorers is an app for children aged 3 to 6 and their families. We designed it to collect as little as possible. <b>In short: the app does not send any personal information to us or to anyone else.</b></p>
 
 <h2>Information we collect</h2>
-<p><b>None.</b> We do not collect, store on our servers, share or sell any personal information from children or adults. There are no accounts, no ads, no analytics, no tracking, no chat and no location.</p>
+<p><b>None from the app.</b> The app does not collect, store on our servers, share or sell any personal information from children or adults. There are no accounts, no ads, no analytics, no tracking, no chat and no location.</p>
 
 <h2>Information stored on your device</h2>
 <p>To work, the app keeps the following <b>only on your device</b>:</p>
@@ -315,11 +360,14 @@ const privacy = '''
 <h2>Children's privacy laws</h2>
 <p>We follow the principles of the US Children's Online Privacy Protection Act (COPPA), the EU and UK GDPR and the UK Age Appropriate Design Code, and the Australian Privacy Act: data minimisation, high-privacy defaults and no nudges to share data. The app follows the Apple Kids Category guidelines and the Google Play Families Policy.</p>
 
+<h2>Support requests (website only)</h2>
+<p>If a grown-up contacts us through the <a href="../support/">support page</a>, we store the topic, the messages you write, and optionally the device type and app version. We don't ask for a name or email address. You get a request number and a private code; the code is stored only in scrambled (hashed) form. To prevent spam, a scrambled version of your internet address is kept for 24 hours. Closed requests are deleted automatically 12 months after the last message, or sooner if you ask us in the request.</p>
+
 <h2>Changes</h2>
 <p>If this policy changes, we will update this page and the date above, and describe the change in the app's release notes. We will never start collecting children's data without verifiable parental consent.</p>
 
 <h2>Contact</h2>
-<p>Questions about privacy? Contact us through the <a href="../support/">support page</a>.</p>
+<p>Questions about privacy? Contact us with the form on the <a href="../support/">support page</a>.</p>
 </article>
 ''';
 
@@ -361,7 +409,60 @@ const terms = '''
 const support = '''
 <article class="glass prose">
 <h1>Support</h1>
-<p>We're happy to help. Most answers are below. To contact us, <a href="$supportLink">open a support request</a> (please don't include your child's name or any personal details).</p>
+<p>We're happy to help. Many answers are in the questions below. To ask us something, use the form. You'll get a request number and a private code to check our reply here. No email address or account is needed.</p>
+
+<h2 id="contact-us">Contact us</h2>
+<form id="contact" class="form" novalidate>
+  <div class="row2">
+    <label>Topic
+      <select name="topic" required>
+        <option>Using the app</option>
+        <option>Subscription and billing</option>
+        <option>Something is not working</option>
+        <option>Privacy and data</option>
+        <option>Learning content</option>
+        <option>Other</option>
+      </select>
+    </label>
+    <label>Device
+      <select name="platform">
+        <option value="">Choose (optional)</option>
+        <option>iPhone</option><option>iPad</option><option>Android phone</option><option>Android tablet</option><option>Other</option>
+      </select>
+    </label>
+  </div>
+  <label>App version (optional)
+    <input name="appVersion" maxlength="20" placeholder="For example 1.4.0 (Grown-ups → Settings)" autocomplete="off">
+  </label>
+  <label>Your message
+    <textarea name="message" required minlength="10" maxlength="2000" placeholder="Tell us what happened. Please don't include your child's name or other personal details."></textarea>
+  </label>
+  <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="actions"><button class="btn" type="submit">Send</button><p id="contact-status" class="notice" hidden></p></div>
+</form>
+<div id="ticket-made" class="made" hidden>
+  <h3>Thank you! We've got your message.</h3>
+  <p>Save these to check our reply (we usually answer within 2 working days):</p>
+  <p>Request number: <span id="made-id" class="code"></span><br>Private code: <span id="made-code" class="code"></span></p>
+  <p>This browser also remembers them for you.</p>
+</div>
+
+<h2 id="check">Check a request</h2>
+<form id="lookup" class="form">
+  <div class="row2">
+    <label>Request number <input id="lookup-id" placeholder="LE-XXXXXX" autocomplete="off" autocapitalize="characters"></label>
+    <label>Private code <input id="lookup-code" placeholder="8 letters and numbers" autocomplete="off" autocapitalize="characters"></label>
+  </div>
+  <div class="actions"><button class="btn ghost" type="submit">Check for a reply</button><p id="lookup-status" class="notice" hidden></p></div>
+</form>
+<section id="thread" class="glass made" hidden aria-live="polite">
+  <div class="actions"><h3 id="thread-title" style="margin:0"></h3><span id="thread-status" class="pill-status"></span></div>
+  <ul id="thread-messages" class="messages"></ul>
+  <form id="followup" class="form">
+    <label>Add a message <textarea name="message" required maxlength="2000" style="min-height:90px"></textarea></label>
+    <div class="actions"><button class="btn" type="submit">Send</button><p id="followup-status" class="notice" hidden></p></div>
+  </form>
+</section>
 
 <h2>Frequently asked questions</h2>
 <details class="glass"><summary>How do I open the grown-ups area?</summary><p>Tap "Grown-ups" on the Home screen, then tap the numbers shown as words (for example "seven · two · nine"). The numbers change every time.</p></details>
@@ -383,7 +484,65 @@ const support = '''
 </table>
 
 <h2>Accessibility</h2>
-<p>Narration with captions, large touch targets, left-handed mode, slow narration, reduce motion, and larger system text. If something is hard to use, please tell us through the support request link above.</p>
+<p>Narration with captions, large touch targets, left-handed mode, slow narration, reduce motion, and larger system text. If something is hard to use, please tell us with the contact form above.</p>
+</article>
+''';
+
+const admin = '''
+<article class="glass prose" style="max-width:1120px">
+<div class="actions" style="justify-content:space-between"><h1 style="margin:0">Support dashboard</h1><button id="signout" class="btn ghost" type="button">Sign out</button></div>
+<p id="elsewhere" hidden>The dashboard only works on the Cloudflare site: <a href="https://little-explorers-app.pages.dev/admin/">little-explorers-app.pages.dev/admin</a></p>
+
+<form id="login" class="form" style="max-width:420px">
+  <p>Grown-up staff only. Enter the admin password.</p>
+  <label>Admin password <input id="password" type="password" autocomplete="current-password" required></label>
+  <div class="actions"><button class="btn" type="submit">Sign in</button><p id="login-status" class="notice" hidden></p></div>
+</form>
+
+<div id="dash" hidden>
+  <div class="stats">
+    <div class="glass stat"><b id="count-unread">0</b>New</div>
+    <div class="glass stat"><b id="count-open">0</b>Waiting</div>
+    <div class="glass stat"><b id="count-answered">0</b>Answered</div>
+    <div class="glass stat"><b id="count-closed">0</b>Closed</div>
+  </div>
+  <div class="admin-grid">
+    <section aria-label="Requests">
+      <div class="tabs">
+        <button type="button" data-filter="open" aria-pressed="true">Waiting</button>
+        <button type="button" data-filter="answered" aria-pressed="false">Answered</button>
+        <button type="button" data-filter="closed" aria-pressed="false">Closed</button>
+        <button type="button" data-filter="all" aria-pressed="false">All</button>
+        <button type="button" id="reload" aria-label="Refresh">↻</button>
+      </div>
+      <ul id="tickets" class="tickets"></ul>
+    </section>
+    <section aria-label="Conversation">
+      <p id="detail-empty" class="glass made">Choose a request to read and reply.</p>
+      <div id="detail" class="glass made" hidden>
+        <div class="actions" style="justify-content:space-between"><h2 id="d-title" style="margin:0;font-size:1.3rem"></h2><span id="d-status" class="pill-status"></span></div>
+        <small id="d-meta"></small>
+        <ul id="d-messages" class="messages"></ul>
+        <form id="reply" class="form">
+          <div class="templates" aria-label="Reply templates">
+            <button type="button" data-template="Thank you for getting in touch. To cancel: on iPhone or iPad go to Settings → your name → Subscriptions; on Android open Google Play → Payments &amp; subscriptions → Subscriptions. Cancel at least 24 hours before the renewal date.">Cancel help</button>
+            <button type="button" data-template="Thank you for getting in touch. Please open Grown-ups → Explorer Plus → Restore purchases, using the same Apple ID or Google account you bought with.">Restore help</button>
+            <button type="button" data-template="Thank you for letting us know. We're looking into this and will update you here soon.">Looking into it</button>
+            <button type="button" data-template="Thank you for your message. Is there anything else we can help with? If not, we'll close this request in a few days.">Wrap up</button>
+          </div>
+          <label>Your reply <textarea id="reply-text" maxlength="4000" required></textarea></label>
+          <div class="actions">
+            <button class="btn" type="submit">Send reply</button>
+            <button class="btn ghost" type="button" id="close">Mark closed</button>
+            <button class="btn ghost" type="button" id="reopen" hidden>Reopen</button>
+            <button class="btn danger" type="button" id="delete">Delete</button>
+          </div>
+          <p id="d-status-msg" class="notice" hidden></p>
+        </form>
+      </div>
+    </section>
+  </div>
+</div>
 </article>
 ''';
 
@@ -392,17 +551,25 @@ void main() {
   if (out.existsSync()) out.deleteSync(recursive: true);
   Directory('website/assets').createSync(recursive: true);
   File('website/assets/site.css').writeAsStringSync(css);
-  void write(String slug, String title, String desc, String body) {
+  void write(String slug, String title, String desc, String body, {String head = '', String scripts = ''}) {
     final f = File(slug.isEmpty ? 'website/index.html' : 'website/$slug/index.html');
     f.parent.createSync(recursive: true);
-    f.writeAsStringSync(page(slug, title, desc, body));
+    f.writeAsStringSync(page(slug, title, desc, body, head: head, scripts: scripts));
   }
 
   write('', '$appName: learning app for ages 3–6', 'A calm, ad-free learning adventure for children aged 3 to 6.', home);
   write('parents', 'For parents · $appName', 'How Little Explorers teaches, and how it keeps children safe.', parents);
   write('privacy', 'Privacy Policy · $appName', 'Little Explorers collects no personal information.', privacy);
   write('terms', 'Terms of Use · $appName', 'Terms of use and subscription terms for Little Explorers.', terms);
-  write('support', 'Support · $appName', 'Help, FAQs and contact for Little Explorers.', support);
+  write('support', 'Support · $appName', 'Help, FAQs and contact for Little Explorers.', support,
+      scripts: '<script src="../assets/support.js" defer></script>');
+  write('admin', 'Support dashboard · $appName', 'Support dashboard', admin,
+      head: '<meta name="robots" content="noindex, nofollow">',
+      scripts: '<script src="../assets/admin.js" defer></script>');
+  for (final js in ['support.js', 'admin.js']) {
+    File('tool/site/$js').copySync('website/assets/$js');
+  }
+  File('website/robots.txt').writeAsStringSync('User-agent: *\nDisallow: /admin/\n');
   File('website/404.html').writeAsStringSync(page('404', 'Page not found · $appName', 'Page not found',
       '<article class="glass prose" style="text-align:center"><h1>Page not found</h1><p>Let\'s go back to the start.</p><a class="btn" id="home" href="/">Home</a><script>if(location.pathname.indexOf("/little-explorers")===0)document.getElementById("home").href="/little-explorers/"</script></article>'));
   // Copy the icon and a few screenshots.

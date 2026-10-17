@@ -673,7 +673,9 @@ class _FeelingsState extends _PickGameState<FeelingsGame> {
     final off = widget.level.p['offset'] as int;
     sc = feelingsBook[(off + api.round * 7) % feelingsBook.length];
     const faces = ['face:happy', 'face:sad', 'face:sleepy', 'face:scared', 'face:surprised', 'face:cross', 'face:proud'];
-    options = _pick<String>(r, sc.feeling, faces, min(api.choices, 3));
+    // Never offer a feeling that could also fairly be right.
+    final pool = faces.where((f) => !(closeFeelings[sc.feeling] ?? const <String>{}).contains(f)).toList();
+    options = _pick<String>(r, sc.feeling, pool, min(api.choices, 3));
     answer = options.indexOf(sc.feeling);
   }
 
@@ -700,3 +702,14 @@ class _FeelingsState extends _PickGameState<FeelingsGame> {
   @override
   String model() => 'Many people would feel ${_name(sc.feeling)}. All feelings are okay.';
 }
+
+/// Feelings that are too close to tell apart fairly in a scenario.
+const closeFeelings = <String, Set<String>>{
+  'face:happy': {'face:proud', 'face:surprised'},
+  'face:proud': {'face:happy', 'face:surprised'},
+  'face:surprised': {'face:happy', 'face:proud', 'face:scared'},
+  'face:scared': {'face:surprised', 'face:sad'},
+  'face:sad': {'face:scared', 'face:cross', 'face:sleepy'},
+  'face:cross': {'face:sad'},
+  'face:sleepy': {'face:sad'},
+};

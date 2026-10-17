@@ -14,6 +14,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
+
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -37,7 +38,60 @@
 <main id="main" class="wrap">
 <article class="glass prose">
 <h1>Support</h1>
-<p>We're happy to help. Most answers are below. To contact us, <a href="https://github.com/stephenmwangi40/little-explorers/issues/new">open a support request</a> (please don't include your child's name or any personal details).</p>
+<p>We're happy to help. Many answers are in the questions below. To ask us something, use the form. You'll get a request number and a private code to check our reply here. No email address or account is needed.</p>
+
+<h2 id="contact-us">Contact us</h2>
+<form id="contact" class="form" novalidate>
+  <div class="row2">
+    <label>Topic
+      <select name="topic" required>
+        <option>Using the app</option>
+        <option>Subscription and billing</option>
+        <option>Something is not working</option>
+        <option>Privacy and data</option>
+        <option>Learning content</option>
+        <option>Other</option>
+      </select>
+    </label>
+    <label>Device
+      <select name="platform">
+        <option value="">Choose (optional)</option>
+        <option>iPhone</option><option>iPad</option><option>Android phone</option><option>Android tablet</option><option>Other</option>
+      </select>
+    </label>
+  </div>
+  <label>App version (optional)
+    <input name="appVersion" maxlength="20" placeholder="For example 1.4.0 (Grown-ups → Settings)" autocomplete="off">
+  </label>
+  <label>Your message
+    <textarea name="message" required minlength="10" maxlength="2000" placeholder="Tell us what happened. Please don't include your child's name or other personal details."></textarea>
+  </label>
+  <div class="hp" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
+  <div class="actions"><button class="btn" type="submit">Send</button><p id="contact-status" class="notice" hidden></p></div>
+</form>
+<div id="ticket-made" class="made" hidden>
+  <h3>Thank you! We've got your message.</h3>
+  <p>Save these to check our reply (we usually answer within 2 working days):</p>
+  <p>Request number: <span id="made-id" class="code"></span><br>Private code: <span id="made-code" class="code"></span></p>
+  <p>This browser also remembers them for you.</p>
+</div>
+
+<h2 id="check">Check a request</h2>
+<form id="lookup" class="form">
+  <div class="row2">
+    <label>Request number <input id="lookup-id" placeholder="LE-XXXXXX" autocomplete="off" autocapitalize="characters"></label>
+    <label>Private code <input id="lookup-code" placeholder="8 letters and numbers" autocomplete="off" autocapitalize="characters"></label>
+  </div>
+  <div class="actions"><button class="btn ghost" type="submit">Check for a reply</button><p id="lookup-status" class="notice" hidden></p></div>
+</form>
+<section id="thread" class="glass made" hidden aria-live="polite">
+  <div class="actions"><h3 id="thread-title" style="margin:0"></h3><span id="thread-status" class="pill-status"></span></div>
+  <ul id="thread-messages" class="messages"></ul>
+  <form id="followup" class="form">
+    <label>Add a message <textarea name="message" required maxlength="2000" style="min-height:90px"></textarea></label>
+    <div class="actions"><button class="btn" type="submit">Send</button><p id="followup-status" class="notice" hidden></p></div>
+  </form>
+</section>
 
 <h2>Frequently asked questions</h2>
 <details class="glass"><summary>How do I open the grown-ups area?</summary><p>Tap "Grown-ups" on the Home screen, then tap the numbers shown as words (for example "seven · two · nine"). The numbers change every time.</p></details>
@@ -59,7 +113,7 @@
 </table>
 
 <h2>Accessibility</h2>
-<p>Narration with captions, large touch targets, left-handed mode, slow narration, reduce motion, and larger system text. If something is hard to use, please tell us through the support request link above.</p>
+<p>Narration with captions, large touch targets, left-handed mode, slow narration, reduce motion, and larger system text. If something is hard to use, please tell us with the contact form above.</p>
 </article>
 
 </main>
@@ -69,5 +123,6 @@
     <small><a href="../privacy/">Privacy Policy</a> · <a href="../terms/">Terms of Use</a> · <a href="../support/">Support</a></small>
   </div>
 </footer>
+<script src="../assets/support.js" defer></script>
 </body>
 </html>
