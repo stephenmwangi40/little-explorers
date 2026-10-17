@@ -33,6 +33,11 @@ nav a{color:var(--ink);text-decoration:none;font-weight:800;font-size:.95rem;pad
 nav a[aria-current=page],nav a:hover{background:var(--glass-strong)}
 .menu{display:none;margin-left:auto;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--edge);background:var(--glass-strong);color:var(--ink);font-size:1.2rem;cursor:pointer}
 @media (max-width:720px){nav{display:none}.menu{display:inline-flex}}
+@media (min-width:721px){.sheet{display:none!important}}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.6em 0 1.2em}
+.table-wrap table{margin:0}
+h1,h2,h3,p,li,summary{overflow-wrap:break-word}
+img,svg{max-width:100%}
 .sheet{display:none;padding:8px;margin-top:8px}
 .sheet a{display:block;padding:12px 14px;border-radius:14px;color:var(--ink);text-decoration:none;font-weight:800}
 .sheet.open{display:block}

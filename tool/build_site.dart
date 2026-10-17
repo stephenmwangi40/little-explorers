@@ -56,6 +56,11 @@ nav a{color:var(--ink);text-decoration:none;font-weight:800;font-size:.95rem;pad
 nav a[aria-current=page],nav a:hover{background:var(--glass-strong)}
 .menu{display:none;margin-left:auto;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--edge);background:var(--glass-strong);color:var(--ink);font-size:1.2rem;cursor:pointer}
 @media (max-width:720px){nav{display:none}.menu{display:inline-flex}}
+@media (min-width:721px){.sheet{display:none!important}}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.6em 0 1.2em}
+.table-wrap table{margin:0}
+h1,h2,h3,p,li,summary{overflow-wrap:break-word}
+img,svg{max-width:100%}
 .sheet{display:none;padding:8px;margin-top:8px}
 .sheet a{display:block;padding:12px 14px;border-radius:14px;color:var(--ink);text-decoration:none;font-weight:800}
 .sheet.open{display:block}
@@ -142,6 +147,9 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
 ''';
 
+/// Changes whenever styles or scripts change (see main).
+var assetVersion = '1';
+
 const pages = <String, String>{
   '': 'Home',
   'parents': 'For parents',
@@ -155,6 +163,7 @@ String page(String slug, String title, String description, String body, {String 
   final nav = pages.entries
       .map((e) => '<a href="$depth${e.key.isEmpty ? '' : '${e.key}/'}"${e.key == slug ? ' aria-current="page"' : ''}>${e.value}</a>')
       .join();
+  body = body.replaceAll('<table>', '<div class="table-wrap"><table>').replaceAll('</table>', '</table></div>');
   final sheet = pages.entries.map((e) => '<a href="$depth${e.key.isEmpty ? '' : '${e.key}/'}">${e.value}</a>').join();
   return '''<!doctype html>
 <html lang="en">
@@ -171,7 +180,7 @@ String page(String slug, String title, String description, String body, {String 
 <link rel="apple-touch-icon" href="${depth}assets/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${depth}assets/site.css">
+<link rel="stylesheet" href="${depth}assets/site.css?v=$assetVersion">
 $head
 </head>
 <body>
@@ -456,6 +465,7 @@ const support = '''
   <div class="actions"><button class="btn ghost" type="submit">Check for a reply</button><p id="lookup-status" class="notice" hidden></p></div>
 </form>
 <section id="thread" class="glass made" hidden aria-live="polite">
+  <p class="muted" style="margin:0 0 6px;font-size:.9rem">Keep this page open: our reply appears here by itself.</p>
   <div class="actions"><h3 id="thread-title" style="margin:0"></h3><span id="thread-status" class="pill-status"></span></div>
   <ul id="thread-messages" class="messages"></ul>
   <form id="followup" class="form">
@@ -488,69 +498,20 @@ const support = '''
 </article>
 ''';
 
-const admin = '''
-<article class="glass prose" style="max-width:1120px">
-<div class="actions" style="justify-content:space-between"><h1 style="margin:0">Support dashboard</h1><button id="signout" class="btn ghost" type="button" hidden>Sign out</button></div>
-<p id="elsewhere" hidden>The dashboard only works on the Cloudflare site: <a href="https://little-explorers-app.pages.dev/admin/">little-explorers-app.pages.dev/admin</a></p>
-
-<form id="login" class="form" style="max-width:420px">
-  <p>Grown-up staff only. Enter the admin password.</p>
-  <label>Admin password <input id="password" type="password" autocomplete="current-password" required></label>
-  <div class="actions"><button class="btn" type="submit">Sign in</button><p id="login-status" class="notice" hidden></p></div>
-</form>
-
-<div id="dash" hidden>
-  <div class="stats">
-    <div class="glass stat"><b id="count-unread">0</b>New</div>
-    <div class="glass stat"><b id="count-open">0</b>Waiting</div>
-    <div class="glass stat"><b id="count-answered">0</b>Answered</div>
-    <div class="glass stat"><b id="count-closed">0</b>Closed</div>
-  </div>
-  <div class="admin-grid">
-    <section aria-label="Requests">
-      <div class="tabs">
-        <button type="button" data-filter="open" aria-pressed="true">Waiting</button>
-        <button type="button" data-filter="answered" aria-pressed="false">Answered</button>
-        <button type="button" data-filter="closed" aria-pressed="false">Closed</button>
-        <button type="button" data-filter="all" aria-pressed="false">All</button>
-        <button type="button" id="reload" aria-label="Refresh">↻</button>
-      </div>
-      <ul id="tickets" class="tickets"></ul>
-    </section>
-    <section aria-label="Conversation">
-      <p id="detail-empty" class="glass made">Choose a request to read and reply.</p>
-      <div id="detail" class="glass made" hidden>
-        <div class="actions" style="justify-content:space-between"><h2 id="d-title" style="margin:0;font-size:1.3rem"></h2><span id="d-status" class="pill-status"></span></div>
-        <small id="d-meta"></small>
-        <ul id="d-messages" class="messages"></ul>
-        <form id="reply" class="form">
-          <div class="templates" aria-label="Reply templates">
-            <button type="button" data-template="Thank you for getting in touch. To cancel: on iPhone or iPad go to Settings → your name → Subscriptions; on Android open Google Play → Payments &amp; subscriptions → Subscriptions. Cancel at least 24 hours before the renewal date.">Cancel help</button>
-            <button type="button" data-template="Thank you for getting in touch. Please open Grown-ups → Explorer Plus → Restore purchases, using the same Apple ID or Google account you bought with.">Restore help</button>
-            <button type="button" data-template="Thank you for letting us know. We're looking into this and will update you here soon.">Looking into it</button>
-            <button type="button" data-template="Thank you for your message. Is there anything else we can help with? If not, we'll close this request in a few days.">Wrap up</button>
-          </div>
-          <label>Your reply <textarea id="reply-text" maxlength="4000" required></textarea></label>
-          <div class="actions">
-            <button class="btn" type="submit">Send reply</button>
-            <button class="btn ghost" type="button" id="close">Mark closed</button>
-            <button class="btn ghost" type="button" id="reopen" hidden>Reopen</button>
-            <button class="btn danger" type="button" id="delete">Delete</button>
-          </div>
-          <p id="d-status-msg" class="notice" hidden></p>
-        </form>
-      </div>
-    </section>
-  </div>
-</div>
-</article>
-''';
 
 void main() {
   final out = Directory('website');
   if (out.existsSync()) out.deleteSync(recursive: true);
   Directory('website/assets').createSync(recursive: true);
   File('website/assets/site.css').writeAsStringSync(css);
+  // Cache-busting: every change to styles or scripts gets a new version, so
+  // phones always load the newest design without a manual refresh.
+  final sources = [css, for (final f in ['support.js', 'admin.js', 'admin.css', 'admin.html']) File('tool/site/$f').readAsStringSync()];
+  var h = 0;
+  for (final c in sources.join().codeUnits) {
+    h = (h * 31 + c) & 0x7fffffff;
+  }
+  assetVersion = h.toRadixString(36);
   void write(String slug, String title, String desc, String body, {String head = '', String scripts = ''}) {
     final f = File(slug.isEmpty ? 'website/index.html' : 'website/$slug/index.html');
     f.parent.createSync(recursive: true);
@@ -562,14 +523,29 @@ void main() {
   write('privacy', 'Privacy Policy · $appName', 'Little Explorers collects no personal information.', privacy);
   write('terms', 'Terms of Use · $appName', 'Terms of use and subscription terms for Little Explorers.', terms);
   write('support', 'Support · $appName', 'Help, FAQs and contact for Little Explorers.', support,
-      scripts: '<script src="../assets/support.js" defer></script>');
-  write('admin', 'Support dashboard · $appName', 'Support dashboard', admin,
-      head: '<meta name="robots" content="noindex, nofollow">',
-      scripts: '<script src="../assets/admin.js" defer></script>');
-  for (final js in ['support.js', 'admin.js']) {
-    File('tool/site/$js').copySync('website/assets/$js');
+      scripts: '<script src="../assets/support.js?v=$assetVersion" defer></script>');
+  // The Support Desk is a stand-alone admin app (its own page, design and menu).
+  Directory('website/admin').createSync(recursive: true);
+  File('website/admin/index.html').writeAsStringSync(File('tool/site/admin.html')
+      .readAsStringSync()
+      .replaceAll('{{OWL}}', owl)
+      .replaceAll('{{V}}', assetVersion));
+  for (final f in ['support.js', 'admin.js', 'admin.css']) {
+    File('tool/site/$f').copySync('website/assets/$f');
   }
   File('website/robots.txt').writeAsStringSync('User-agent: *\nDisallow: /admin/\n');
+  // Cloudflare headers: fresh HTML, cached assets, admin never cached or framed.
+  File('website/_headers').writeAsStringSync('''
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+/assets/*
+  Cache-Control: public, max-age=86400
+/admin/*
+  Cache-Control: no-store
+  X-Frame-Options: DENY
+''');
   File('website/404.html').writeAsStringSync(page('404', 'Page not found · $appName', 'Page not found',
       '<article class="glass prose" style="text-align:center"><h1>Page not found</h1><p>Let\'s go back to the start.</p><a class="btn" id="home" href="/">Home</a><script>if(location.pathname.indexOf("/little-explorers")===0)document.getElementById("home").href="/little-explorers/"</script></article>'));
   // Copy the icon and a few screenshots.

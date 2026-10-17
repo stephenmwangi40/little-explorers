@@ -88,6 +88,26 @@
       list.append(li);
     });
     $('followup').hidden = data.status === 'closed';
+    watch(data.status !== 'closed');
+  }
+
+  // While a request is open on screen, new replies appear by themselves.
+  var poll = null;
+  var lastCount = 0;
+  function watch(on) {
+    if (poll) clearInterval(poll);
+    poll = null;
+    if (!on) return;
+    lastCount = document.querySelectorAll('#thread-messages li').length;
+    poll = setInterval(async function () {
+      if (document.hidden || $('thread').hidden) return;
+      try {
+        var data = await call('/api/tickets/' + encodeURIComponent($('lookup-id').value.trim().toUpperCase()), {
+          headers: { 'x-ticket-code': $('lookup-code').value.trim().toUpperCase() },
+        });
+        if (data.messages.length !== lastCount || data.status === 'closed') render(data);
+      } catch (e) {}
+    }, 20000);
   }
 
   async function load() {

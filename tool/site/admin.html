@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#263257">
+<title>Support Desk · Little Explorers</title>
+<link rel="icon" href="../assets/icon.png?v={{V}}">
+<link rel="apple-touch-icon" href="../assets/icon.png?v={{V}}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/admin.css?v={{V}}">
+</head>
+<body>
+<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<!-- Sign in -->
+<main id="login-view" class="center">
+  <form id="login" class="panel login" autocomplete="on">
+    {{OWL}}
+    <h1>Support Desk</h1>
+    <p class="muted">Little Explorers · staff only</p>
+    <label for="password">Admin password</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button class="btn primary" type="submit">Sign in</button>
+    <p id="login-status" class="notice" role="alert" hidden></p>
+    <p id="elsewhere" class="notice" hidden>The Support Desk only works at <a href="https://little-explorers-app.pages.dev/admin/">little-explorers-app.pages.dev/admin</a>.</p>
+  </form>
+</main>
+
+<!-- Dashboard -->
+<div id="app" hidden>
+  <header class="bar">
+    <button id="home" class="brand" type="button" aria-label="Home: all requests">
+      {{OWL}}<span><b>Support Desk</b><small>Little Explorers</small></span>
+    </button>
+    <span class="grow"></span>
+    <span id="updated" class="updated" aria-live="polite"></span>
+    <button id="home-btn" class="icon-btn" type="button" aria-label="Home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11L12 4l8.5 7v9a1 1 0 01-1 1H15v-6H9v6H4.5a1 1 0 01-1-1z" fill="currentColor"/></svg><span>Home</span></button>
+    <button id="refresh" class="icon-btn" type="button" aria-label="Refresh"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 11-2.34-5.66M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Refresh</span></button>
+    <button id="signout" class="icon-btn" type="button" aria-label="Sign out"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h3a2 2 0 012 2v12a2 2 0 01-2 2h-3M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Sign out</span></button>
+  </header>
+
+  <main class="layout" id="layout" data-view="home">
+    <section class="list-pane" aria-label="Requests">
+      <div class="hello">
+        <h1 id="greeting">Hello!</h1>
+        <p class="muted" id="summary">Loading requests…</p>
+      </div>
+      <div class="stats" role="tablist" aria-label="Filter requests">
+        <button class="stat new" data-filter="unread" role="tab" aria-selected="false"><b id="count-unread">0</b><span>New</span></button>
+        <button class="stat open" data-filter="open" role="tab" aria-selected="true"><b id="count-open">0</b><span>Waiting</span></button>
+        <button class="stat answered" data-filter="answered" role="tab" aria-selected="false"><b id="count-answered">0</b><span>Answered</span></button>
+        <button class="stat closed" data-filter="closed" role="tab" aria-selected="false"><b id="count-closed">0</b><span>Closed</span></button>
+      </div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <input id="search" type="search" placeholder="Search requests" aria-label="Search requests">
+        <button id="show-all" class="chip" type="button">All</button>
+      </div>
+      <ul id="tickets" class="tickets"></ul>
+    </section>
+
+    <section class="detail-pane" aria-label="Conversation">
+      <div id="detail-empty" class="panel empty">
+        {{OWL}}
+        <h2>Choose a request</h2>
+        <p class="muted">Read the conversation and reply. New messages appear here automatically.</p>
+      </div>
+      <article id="detail" class="panel detail" hidden>
+        <div class="detail-head">
+          <button id="back" class="icon-btn back" type="button" aria-label="Back to all requests"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Home</span></button>
+          <div class="grow">
+            <h2 id="d-title"></h2>
+            <p id="d-meta" class="muted"></p>
+          </div>
+          <span id="d-status" class="status"></span>
+        </div>
+        <ul id="d-messages" class="messages"></ul>
+        <form id="reply" class="reply">
+          <div class="templates" aria-label="Quick replies">
+            <button type="button" data-template="Thank you for getting in touch. To cancel: on iPhone or iPad go to Settings → your name → Subscriptions; on Android open Google Play → Payments &amp; subscriptions → Subscriptions. Please cancel at least 24 hours before the renewal date.">Cancel help</button>
+            <button type="button" data-template="Thank you for getting in touch. Please open Grown-ups → Explorer Plus → Restore purchases, using the same Apple ID or Google account you bought with.">Restore help</button>
+            <button type="button" data-template="Thank you for getting in touch. Please check that Narration is on in Grown-ups → Settings, and that your device's media volume is up. Tiko uses your device's text-to-speech voice.">Tiko is silent</button>
+            <button type="button" data-template="Thank you for letting us know. We're looking into this and will update you here soon.">Looking into it</button>
+            <button type="button" data-template="Thank you for your message. Is there anything else we can help with? If not, we'll close this request in a few days.">Wrap up</button>
+          </div>
+          <label for="reply-text" class="sr">Your reply</label>
+          <textarea id="reply-text" maxlength="4000" placeholder="Write a reply…" required></textarea>
+          <div class="actions">
+            <button class="btn primary" type="submit">Send reply</button>
+            <button class="btn" type="button" id="close">Mark closed</button>
+            <button class="btn" type="button" id="reopen" hidden>Reopen</button>
+            <span class="grow"></span>
+            <button class="btn danger" type="button" id="delete">Delete</button>
+          </div>
+          <p id="d-status-msg" class="notice" role="status" hidden></p>
+        </form>
+      </article>
+    </section>
+  </main>
+</div>
+<script src="../assets/admin.js?v={{V}}" defer></script>
+</body>
+</html>

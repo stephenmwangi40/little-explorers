@@ -79,3 +79,9 @@ code=$(curl -s -o /dev/null -w '%{http_code}' $BASE/api/admin/tickets -H "author
 [ "$code" = 403 ] || fail "cross-site admin call returned $code"
 
 echo "ALL SUPPORT TESTS PASSED"
+
+echo "10. Real-browser tests (all screen sizes, parent and admin flows)"
+npm init -y >/dev/null 2>&1 || true
+npm install --no-save --no-audit --no-fund playwright@1 >/dev/null
+npx playwright install --with-deps chromium >/dev/null
+node cloudflare/ui-test.mjs || fail "browser tests"

@@ -49,3 +49,6 @@ app.*.map.json
 
 # Local Cloudflare dev state
 .wrangler/
+node_modules/
+package.json
+package-lock.json
