@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +26,16 @@ class Audio {
   /// The caption for the line being narrated (shown under the coach).
   final ValueNotifier<String> caption = ValueNotifier('');
 
+  /// True while Tiko is talking. Games wait for this before "Next" is
+  /// enabled, so every explanation is heard in full.
+  final ValueNotifier<bool> speaking = ValueNotifier(false);
+  Timer? _speechGuard;
+
+  void _doneSpeaking() {
+    _speechGuard?.cancel();
+    speaking.value = false;
+  }
+
   Future<void> init(Settings s) async {
     _s = s;
     try {
@@ -32,8 +44,15 @@ class Audio {
       _sfx = List.generate(3, (i) => AudioPlayer(playerId: 'sfx$i'));
       await _tts.awaitSpeakCompletion(false);
       _tts.setStartHandler(() => _duck(true));
-      _tts.setCompletionHandler(() => _duck(false));
+      _tts.setCompletionHandler(() {
+        _duck(false);
+        _doneSpeaking();
+      });
       _tts.setCancelHandler(() => _duck(false));
+      _tts.setErrorHandler((_) {
+        _duck(false);
+        _doneSpeaking();
+      });
       await _music.setReleaseMode(ReleaseMode.loop);
       for (final p in _sfx) {
         await p.setReleaseMode(ReleaseMode.stop);
@@ -65,19 +84,31 @@ class Audio {
   }
 
   /// Converts phonics notation like "/a/" into something TTS can say.
-  static String speakable(String text) => text.replaceAllMapped(RegExp(r'/([a-z]{1,2})/'), (m) {
+  static String speakable(String text) => text.replaceAllMapped(RegExp(r'/([a-z]{1,3})/'), (m) {
         final g = m.group(1)!;
         return speakSound[g] ?? g;
       });
 
   Future<void> say(String text, {String? speech}) async {
     caption.value = text;
+    // Until the voice says it has finished, assume talking. A backup timer
+    // (about the time it takes to read the words) covers devices without a
+    // voice or with narration switched off, so the child can always go on.
+    final words = (speech ?? text).split(RegExp(r's+')).length;
+    final slow = _s.slowNarration ? 1.35 : 1.0;
+    final estimate = Duration(milliseconds: (900 + words * 420 * slow).round());
+    speaking.value = true;
+    _speechGuard?.cancel();
+    _speechGuard = Timer(
+        !_ready || !_s.narration ? Duration(milliseconds: (600 + words * 250).clamp(1200, 4000)) : estimate * 1.6,
+        _doneSpeaking);
     if (!_ready || !_s.narration) return;
     try {
       await _tts.stop();
       await _tts.speak(speech ?? speakable(text));
     } catch (e) {
       debugPrint('TTS failed: $e');
+      _doneSpeaking();
     }
   }
 

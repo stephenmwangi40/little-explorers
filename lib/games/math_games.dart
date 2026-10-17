@@ -89,11 +89,12 @@ class _CountGameState extends State<CountGame> {
 
   void _pick(int v) {
     if (v == n) {
-      widget.api.correct(praise: 'Yes! There are $n.');
+      widget.api.correct(
+          praise: 'That’s right! There are $n. When we count each one once, the last number we say, $n, tells us how many.');
     } else {
       widget.api.wrong(
-        hint: _badge.length == n ? 'Close! The last number you said tells how many.' : 'Let’s count together. Tap each one once!',
-        model: 'Let’s count together: ${List.generate(n, (i) => i + 1).join(', ')}. $n!',
+        hint: 'There are not $v. Count again: touch each one once and say one number for each. The last number tells how many.',
+        model: 'Let’s count together: ${List.generate(n, (i) => i + 1).join(', ')}. The last number is $n, so there are $n.',
       );
       if (widget.api.hintLevel >= 1) _modelCount();
     }
@@ -234,9 +235,11 @@ class _NumeralGameState extends State<NumeralGame> {
       coach: gameCoach(widget.coach),
       answers: _numberChoices(api, options, n, (v) {
         if (v == n) {
-          api.correct(praise: 'Yes! That’s $n!');
+          api.correct(praise: 'That’s right! This is the number $n.${n <= 10 ? ' It means $n things, like $n dots.' : ''}');
         } else {
-          api.wrong(hint: 'That’s $v. Listen: find $n!', model: 'This is $n. Look at its shape!');
+          api.wrong(
+              hint: 'You chose the number $v. We are looking for the number $n.',
+              model: 'This is the number $n. Look at its shape.');
         }
       }),
     );
@@ -342,9 +345,11 @@ class _QuickLookGameState extends State<QuickLookGame> {
       coach: gameCoach(widget.coach),
       answers: _numberChoices(api, options, n, (v) {
         if (v == n) {
-          api.correct(praise: 'Yes! $n dots. You saw it fast!');
+          api.correct(praise: 'That’s right! There were $n dots. You saw how many without counting one by one.');
         } else {
-          api.wrong(hint: 'Look again!', model: 'There were $n dots. Look: ${List.generate(n, (i) => i + 1).join(', ')}.');
+          api.wrong(
+              hint: 'There were not $v dots. Look again at the dots.',
+              model: 'There were $n dots. Count them: ${List.generate(n, (i) => i + 1).join(', ')}.');
           _flash();
         }
       }),
@@ -398,11 +403,18 @@ class _CompareGameState extends State<CompareGame> {
     final other = side == 0 ? b : a;
     final right = askMore ? mine > other : mine < other;
     if (right) {
-      widget.api.correct(praise: askMore ? 'Yes! $mine is more than $other.' : 'Yes! $mine is fewer than $other.');
+      widget.api.correct(
+          praise: askMore
+              ? 'That’s right! This basket has $mine and the other has $other. $mine is more than $other.'
+              : 'That’s right! This basket has $mine and the other has $other. $mine is fewer than $other.');
     } else {
       widget.api.wrong(
-          hint: 'This one has $mine. Count the other one!',
-          model: '${max(a, b)} is more than ${min(a, b)}. ${askMore ? 'More' : 'Fewer'} is this one!');
+          hint: askMore
+              ? 'This basket has $mine and the other has $other. $mine is not more than $other.'
+              : 'This basket has $mine and the other has $other. $mine is not fewer than $other.',
+          model: askMore
+              ? '${max(a, b)} is more than ${min(a, b)}, so the basket with ${max(a, b)} has more.'
+              : '${min(a, b)} is fewer than ${max(a, b)}, so the basket with ${min(a, b)} has fewer.');
     }
   }
 
@@ -536,9 +548,11 @@ class _MakeNGameState extends State<MakeNGame> {
       coach: gameCoach(widget.coach),
       answers: _numberChoices(api, options, need, (v) {
         if (v == need) {
-          api.correct(praise: 'Yes! $have and $need make $target!');
+          api.correct(praise: 'That’s right! $have and $need more make $target. There were $need empty boxes to fill.');
         } else {
-          api.wrong(hint: 'Count the empty boxes!', model: '$have and $need make $target. Count the empty boxes: $need!');
+          api.wrong(
+              hint: '$have and $v make ${have + v}, not $target. Count the empty boxes to see how many more we need.',
+              model: '$have and $need make $target. There are $need empty boxes.');
         }
       }),
     );

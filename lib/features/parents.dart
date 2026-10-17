@@ -895,7 +895,7 @@ const kWebsite = 'little-explorers-app.pages.dev';
 
 /// Shown in Settings so parents can tell support which version they have.
 /// Keep in step with pubspec.yaml (a test checks this).
-const kAppVersion = '1.4.0';
+const kAppVersion = '1.5.0';
 
 const termsOfUse = '''
 These terms apply to the Little Explorers app.

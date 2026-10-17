@@ -109,9 +109,9 @@ class _CaseMatchState extends _PickGameState<CaseMatchGame> {
   @override
   String label(int i) => 'Capital ${options[i]}';
   @override
-  String praise() => 'Yes! Big ${letter.toUpperCase()} and small $letter!';
+  String praise() => 'That’s right! Capital ${letter.toUpperCase()} and small $letter are the same letter. They make the same sound.';
   @override
-  String hint(int i) => 'That’s capital ${options[i]}. Look for the big $letter!';
+  String hint(int i) => 'That is capital ${options[i]}, the big letter for ${(options[i] as String).toLowerCase()}. We need the big letter for $letter.';
   @override
   String model() => 'This is capital ${letter.toUpperCase()}. Small $letter, big ${letter.toUpperCase()}.';
 }
@@ -166,9 +166,9 @@ class _SightWordState extends _PickGameState<SightWordGame> {
   @override
   String label(int i) => 'Word ${options[i]}';
   @override
-  String praise() => 'Yes! That says “$word”!';
+  String praise() => 'That’s right! That word says “$word”.';
   @override
-  String hint(int i) => 'That says “${options[i]}”. Find “$word”.';
+  String hint(int i) => 'That word says “${options[i]}”. We are looking for the word “$word”.';
   @override
   String model() => 'This one says “$word”. Let’s read it together: $word!';
 }
@@ -221,9 +221,9 @@ class _RhymeState extends _PickGameState<RhymeGame> {
   @override
   String label(int i) => opts[i].$1;
   @override
-  String praise() => 'Yes! ${prompt0.$1}, ${opts[answer].$1}. They rhyme!';
+  String praise() => 'That’s right! ${prompt0.$1} and ${opts[answer].$1} rhyme: they sound the same at the end.';
   @override
-  String hint(int i) => '${prompt0.$1}… ${opts[i].$1}. Do they sound the same at the end? Try again!';
+  String hint(int i) => '${prompt0.$1} and ${opts[i].$1} do not sound the same at the end, so they do not rhyme.';
   @override
   String model() => '${prompt0.$1} and ${opts[answer].$1} rhyme. They end the same way!';
 }
@@ -308,9 +308,13 @@ class _AddSubState extends _PickGameState<AddSubGame> {
   @override
   String label(int i) => 'Number ${options[i]}';
   @override
-  String praise() => add ? 'Yes! $a and $b make $result!' : 'Yes! $a take away $b leaves $result!';
+  String praise() => add
+      ? 'That’s right! $a and $b more make $result. $a plus $b equals $result.'
+      : 'That’s right! We had $a, and $b went away, so $result are left. $a take away $b equals $result.';
   @override
-  String hint(int i) => add ? 'Count them all together, one by one!' : 'Count the ones that are left!';
+  String hint(int i) => add
+      ? '$a and $b more is not ${options[i]}. Count all of them together, one by one.'
+      : '$a take away $b is not ${options[i]}. Count only the ones that are left, not the crossed-out ones.';
   @override
   String model() => add ? '$a and $b more is $result. Count: ${List.generate(result, (i) => i + 1).join(', ')}.' : '$a take away $b is $result.';
 }
@@ -385,9 +389,9 @@ class _NumberOrderState extends _PickGameState<NumberOrderGame> {
   @override
   String label(int i) => 'Number ${options[i]}';
   @override
-  String praise() => 'Yes! $value goes there!';
+  String praise() => 'That’s right! $value goes there: ${seq.join(', ')}.${step > 1 ? ' We count on by $step each time.' : ''}';
   @override
-  String hint(int i) => 'Count along the line: ${seq.take(gap).join(', ')}… what comes next?';
+  String hint(int i) => '${options[i]} does not fit there. Count along the line${step > 1 ? ' in ${step}s' : ''} and see which number is missing.';
   @override
   String model() => 'Let’s count: ${seq.join(', ')}. The missing number is $value.';
 }
@@ -445,9 +449,9 @@ class _CompareNumbersState extends _PickGameState<CompareNumbersGame> {
   @override
   String label(int i) => 'Number ${options[i]}';
   @override
-  String praise() => 'Yes! $target is ${bigger ? 'the biggest' : 'the smallest'}!';
+  String praise() => 'That’s right! $target is ${bigger ? 'the biggest' : 'the smallest'} number here. When we count, it comes ${bigger ? 'after' : 'before'} the others.';
   @override
-  String hint(int i) => 'Count up from zero. Which number do you reach ${bigger ? 'last' : 'first'}?';
+  String hint(int i) => '${options[i]} is not the ${bigger ? 'biggest' : 'smallest'}. Count up from zero: the ${bigger ? 'biggest' : 'smallest'} number comes ${bigger ? 'last' : 'first'}.';
   @override
   String model() => '$target is ${bigger ? 'bigger' : 'smaller'}. It comes ${bigger ? 'later' : 'sooner'} when we count.';
 }
@@ -502,9 +506,9 @@ class _SolidState extends _PickGameState<SolidGame> {
   @override
   String label(int i) => kinds[i];
   @override
-  String praise() => 'Yes! That is shaped like ${solids[kind]!.$1}!';
+  String praise() => 'That’s right! That is shaped like ${solids[kind]!.$1}.';
   @override
-  String hint(int i) => 'That is shaped like ${solids[kinds[i]]!.$1}. Look again!';
+  String hint(int i) => 'That is shaped like ${solids[kinds[i]]!.$1}, not like ${solids[kind]!.$1}.';
   @override
   String model() => 'This one is shaped like ${solids[kind]!.$1}.';
 }
@@ -574,9 +578,9 @@ class _PositionState extends _PickGameState<PositionGame> {
   @override
   String label(int i) => '${options[i]} the $thingName';
   @override
-  String praise() => 'Yes! $where the $thingName!';
+  String praise() => 'That’s right! In this picture the animal is $where the $thingName.';
   @override
-  String hint(int i) => 'That one is ${options[i]} the $thingName. Find $where!';
+  String hint(int i) => 'In that picture the animal is ${options[i]} the $thingName, not $where it.';
   @override
   String model() => 'Here it is: $where the $thingName.';
 }
@@ -643,9 +647,9 @@ class _ShapeCountState extends _PickGameState<ShapeCountGame> {
   @override
   String label(int i) => 'Number ${options[i]}';
   @override
-  String praise() => 'Yes! $n ${target.name}${n == 1 ? '' : 's'}!';
+  String praise() => 'That’s right! There ${n == 1 ? 'is' : 'are'} $n ${target.name}${n == 1 ? '' : 's'}. We only count the ${target.name}s.';
   @override
-  String hint(int i) => 'Only count the ${target.name}s. Touch each one!';
+  String hint(int i) => 'There are not ${options[i]} ${target.name}s. Count only the ${target.name}s, touching each one once.';
   @override
   String model() => 'Look at the shining ones: there are $n.';
 }
@@ -696,9 +700,9 @@ class _FeelingsState extends _PickGameState<FeelingsGame> {
   @override
   String label(int i) => _name('${options[i]}');
   @override
-  String praise() => 'Yes, lots of people would feel ${_name(sc.feeling)}. It’s okay to feel that way.';
+  String praise() => 'That’s right! ${sc.text} Most people would feel ${_name(sc.feeling)}. It’s okay to feel that way.';
   @override
-  String hint(int i) => 'You might feel ${_name('${options[i]}')}. Most people would feel something else. Think again!';
+  String hint(int i) => 'Most people would not feel ${_name('${options[i]}')} here. Think about what happened: ${sc.text}';
   @override
   String model() => 'Many people would feel ${_name(sc.feeling)}. All feelings are okay.';
 }

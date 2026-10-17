@@ -113,10 +113,11 @@ class _ReadWordState extends State<ReadWordGame> {
       labels: [for (final o in opts) o.word],
       answer: opts.indexOf(word),
       onPick: (i) => opts[i] == word
-          ? api.correct(praise: 'Yes! You read “${word.word}”!')
+          ? api.correct(
+              praise: 'That’s right! You read “${word.word}”: ${word.sounds.map((s) => '/$s/').join(' ')}, ${word.word}. This is the ${word.word}.')
           : api.wrong(
-              hint: 'That’s ${opts[i].word}. Sound out the word: ${word.sounds.map((s) => '/$s/').join(' ')}',
-              model: '${word.sounds.join('-')}… ${word.word}! This is the ${word.word}.'),
+              hint: 'That picture is ${opts[i].word}, but the word says ${word.word}. Sound it out: ${word.sounds.map((s) => '/$s/').join(' ')}.',
+              model: '${word.sounds.map((s) => '/$s/').join(' ')} makes ${word.word}. The ${word.word} is shining.'),
     );
   }
 }
@@ -188,10 +189,11 @@ class _MissingLetterState extends State<MissingLetterGame> {
       labels: [for (final o in opts) 'Letter $o'],
       answer: opts.indexOf(word.sounds[gap]),
       onPick: (i) => opts[i] == word.sounds[gap]
-          ? api.correct(praise: 'Yes! ${word.sounds.join('-')}, ${word.word}!')
+          ? api.correct(
+              praise: 'That’s right! ${word.word} needs the sound /${word.sounds[gap]}/: ${word.sounds.map((s) => '/$s/').join(' ')}, ${word.word}.')
           : api.wrong(
-              hint: 'That says /${opts[i]}/. Listen: ${word.word}.',
-              model: '${word.word} needs /${word.sounds[gap]}/: ${word.sounds.join('-')}.'),
+              hint: '${opts[i]} says /${opts[i]}/. Say the word slowly: ${word.word}. Which sound is missing?',
+              model: '${word.word} needs /${word.sounds[gap]}/: ${word.sounds.map((s) => '/$s/').join(' ')}.'),
     );
   }
 }
@@ -270,10 +272,10 @@ class _ClockState extends State<ClockGame> {
       labels: [for (final o in opts) timeName(o.$1, o.$2)],
       answer: opts.indexOf(time),
       onPick: (i) => opts[i] == time
-          ? api.correct(praise: 'Yes! It’s ${timeName(time.$1, time.$2)}.')
+          ? api.correct(praise: 'That’s right! It’s ${timeName(time.$1, time.$2)}. ${clockWhy(time.$1, time.$2)}')
           : api.wrong(
-              hint: 'Look at the short orange hand. It points to the hour.',
-              model: 'The short hand points to ${time.$1}${time.$2 == 30 ? ' and a half' : ''}. It’s ${timeName(time.$1, time.$2)}.'),
+              hint: 'It is not ${timeName(opts[i].$1, opts[i].$2)}. The short orange hand shows the hour, and the long blue hand shows the minutes.',
+              model: '${clockWhy(time.$1, time.$2)} So it’s ${timeName(time.$1, time.$2)}.'),
     );
   }
 }
@@ -342,7 +344,9 @@ class _OddState extends State<OddOneOutGame> {
       options: [for (final p in pics) Pic(p, size: 64)],
       labels: names,
       answer: odd,
-      onPick: (i) => i == odd ? api.correct(praise: 'Yes! $why') : api.wrong(hint: 'Look for the one that is different.', model: why),
+      onPick: (i) => i == odd
+          ? api.correct(praise: 'That’s right! $why So it does not belong.')
+          : api.wrong(hint: 'That ${names[i]} belongs with others like it. Look for the one that is different. ', model: why),
     );
   }
 }
@@ -388,8 +392,13 @@ class _QuizState extends State<QuizGame> {
       labels: q.labels,
       answer: q.answer,
       onPick: (i) => i == q.answer
-          ? api.correct(praise: 'Yes! ${q.explain}')
-          : api.wrong(hint: 'That’s ${q.labels[i]}. Think again!', model: q.explain),
+          ? api.correct(praise: 'That’s right! ${q.explain}')
+          : api.wrong(hint: '${q.labels[i][0].toUpperCase()}${q.labels[i].substring(1)} is not the answer. ${q.explain}', model: q.explain),
     );
   }
 }
+
+/// Explains how to read the clock face for a time.
+String clockWhy(int h, int m) => m == 0
+    ? 'The short hand points to $h and the long hand points to 12, so it is exactly $h o’clock.'
+    : 'The long hand points to 6, which means half past, and the short hand is just past $h.';

@@ -441,7 +441,7 @@ const support = '''
     </label>
   </div>
   <label>App version (optional)
-    <input name="appVersion" maxlength="20" placeholder="For example 1.4.0 (Grown-ups → Settings)" autocomplete="off">
+    <input name="appVersion" maxlength="20" placeholder="For example 1.5.0 (Grown-ups → Settings)" autocomplete="off">
   </label>
   <label>Your message
     <textarea name="message" required minlength="10" maxlength="2000" placeholder="Tell us what happened. Please don't include your child's name or other personal details."></textarea>

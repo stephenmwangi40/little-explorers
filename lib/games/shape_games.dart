@@ -21,6 +21,16 @@ const shapeColors = {
 
 String shapeName(ShapeKind k) => '${shapeColors[k]!.$2} ${k.name}';
 
+/// What makes each shape that shape, said in child-sized words.
+String shapeClue(ShapeKind k) => switch (k) {
+      ShapeKind.circle => 'A circle is round all the way, with no corners.',
+      ShapeKind.square => 'A square has 4 sides, all the same length.',
+      ShapeKind.triangle => 'A triangle has 3 sides and 3 corners.',
+      ShapeKind.rectangle => 'A rectangle has 4 sides: 2 long and 2 short.',
+      ShapeKind.star => 'A star has 5 points.',
+      ShapeKind.heart => 'A heart has a point at the bottom.',
+    };
+
 // ---------------------------------------------------------------- shape homes
 
 class ShapeSortGame extends StatefulWidget {
@@ -39,7 +49,7 @@ class _ShapeSortGameState extends State<ShapeSortGame> {
   late final Map<ShapeKind, double> scale;
   final Set<ShapeKind> _placed = {};
   ShapeKind? _sel;
-  int _misses = 0;
+
 
   @override
   void initState() {
@@ -66,20 +76,17 @@ class _ShapeSortGameState extends State<ShapeSortGame> {
       });
       Audio.I.sfx('correct');
       if (_placed.length == homes.length) {
-        widget.api.correct(praise: 'All home! ${_cap(shapeName(home))}!');
+        widget.api.correct(
+            praise: 'That’s right! Every shape is in the home with the same shape. ${shapeClue(home)}');
       } else {
-        widget.api.say('${_cap(shapeName(home))}!');
+        widget.api.say('Yes! The ${home.name} goes in the ${home.name} home. ${shapeClue(home)}');
       }
     } else {
-      _misses++;
       setState(() => _sel = null);
-      if (_misses <= 2) {
-        Audio.I.sfx('try');
-        widget.api.say('Hmm, that’s a ${piece.name}. Look at the shape of the home!');
-      } else {
-        widget.api.wrong(
-            hint: 'Hmm, look at the corners and sides!', model: 'A ${piece.name} goes in the ${piece.name} home.');
-      }
+      widget.api.wrong(
+          hint: 'That is a ${piece.name}, but this home is a ${home.name}. ${shapeClue(piece)}',
+          model: 'The ${piece.name} goes in the ${piece.name} home. ${shapeClue(piece)}',
+          retry: 'Put it in the home with the same shape.');
     }
   }
 
@@ -276,11 +283,12 @@ class _PatternGameState extends State<PatternGame> {
         builder: (i) => Pic(options[i], size: 60),
         onPick: (i) {
           if (options[i] == answer) {
-            api.correct(praise: 'Yes! ${names[answer]} comes next!');
+            api.correct(
+                praise: 'That’s right! ${names[answer]} comes next. The pattern goes ${seq.map((e) => names[e]).join(', ')}, ${names[answer]}. It repeats again and again.');
           } else if (!seq.contains(options[i])) {
-            api.wrong(hint: 'There’s no ${names[options[i]]} in this pattern. Look again!', model: 'Say it with me: ${seq.map((e) => names[e]).join(', ')}, ${names[answer]}!');
+            api.wrong(hint: 'There is no ${names[options[i]]} in this pattern, so it cannot come next.', model:'Say it with me: ${seq.map((e) => names[e]).join(', ')}, ${names[answer]}!');
           } else {
-            api.wrong(hint: 'Say it out loud: ${seq.map((e) => names[e]).join(', ')}… what’s next?', model: 'Say it with me: ${seq.map((e) => names[e]).join(', ')}, ${names[answer]}!');
+            api.wrong(hint: '${names[options[i]]} is in the pattern, but it does not come next. Say it out loud: ${seq.map((e) => names[e]).join(', ')}… what comes next?', model: 'Say it with me: ${seq.map((e) => names[e]).join(', ')}, ${names[answer]}!');
           }
         },
       ),
@@ -326,14 +334,7 @@ class _ShapeFindGameState extends State<ShapeFindGame> {
 
   void _prompt() => widget.api.say('Find the ${target.name}!');
 
-  String get _clue => switch (target) {
-        ShapeKind.circle => 'A circle is round all the way, with no corners.',
-        ShapeKind.square => 'A square has 4 sides, all the same length.',
-        ShapeKind.triangle => 'A triangle has 3 sides and 3 corners.',
-        ShapeKind.rectangle => 'A rectangle has 4 sides: 2 long and 2 short.',
-        ShapeKind.star => 'A star has 5 points.',
-        ShapeKind.heart => 'A heart has a point at the bottom.',
-      };
+  String get _clue => shapeClue(target);
 
   @override
   Widget build(BuildContext context) {
@@ -355,9 +356,11 @@ class _ShapeFindGameState extends State<ShapeFindGame> {
         builder: (i) => ShapeArt(options[i], size: 70 * size[i], color: colors[i], rotation: rot[i]),
         onPick: (i) {
           if (options[i] == target) {
-            api.correct(praise: 'Yes! That’s a ${target.name}, even when it’s turned!');
+            api.correct(praise: 'That’s right! That’s a ${target.name}, even when it’s turned or a different size. $_clue');
           } else {
-            api.wrong(hint: 'That’s a ${options[i].name}. $_clue', model: 'Here’s the ${target.name}. $_clue');
+            api.wrong(
+                hint: 'That is a ${options[i].name}, not a ${target.name}. ${shapeClue(options[i])} $_clue',
+                model: 'Here’s the ${target.name}. $_clue');
           }
         },
       ),
@@ -423,10 +426,15 @@ class _SizeGameState extends State<SizeGame> {
                         semantics: i == answer ? (bigger ? 'big one' : 'small one') : 'picture',
                         onTap: () {
                           if (i == answer) {
-                            api.correct(praise: bigger ? 'Yes! That one is bigger!' : 'Yes! That one is smaller!');
+                            api.correct(
+                                praise: bigger
+                                    ? 'That’s right! That one is the biggest. It takes up the most space.'
+                                    : 'That’s right! That one is the smallest. It takes up the least space.');
                           } else {
                             api.wrong(
-                                hint: bigger ? 'Look for the one that takes up the most space!' : 'Look for the tiny one!',
+                                hint: bigger
+                                    ? 'That one is not the biggest. Another one takes up more space.'
+                                    : 'That one is not the smallest. Another one is tinier.',
                                 model: bigger ? 'This one is the biggest!' : 'This one is the smallest!');
                           }
                         },

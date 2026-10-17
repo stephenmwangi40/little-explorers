@@ -143,6 +143,50 @@ void main() {
     expect(result, isTrue);
   });
 
+  testWidgets('Wonder Lab: a wrong prediction is called wrong, explained, and the child must pick the right one',
+      (t) async {
+    t.view.physicalSize = const Size(1024, 1366) * 2;
+    t.view.devicePixelRatio = 2;
+    final s = fresh();
+    final level = allLevels[WorldId.lab]!.firstWhere((l) => l.p['topic'] == 'float');
+    final topic = allLabTopics.firstWhere((x) => x.id == 'float');
+    final item = topic.items[(level.p['offset'] as int) % topic.items.length];
+    final wrong = topic.optionLabels[1 - item.truth], right = topic.optionLabels[item.truth];
+    await t.pumpWidget(AppScope(state: s, child: MaterialApp(theme: buildTheme(), home: GameShell(level: level))));
+    await t.pump(const Duration(milliseconds: 500));
+
+    await t.tap(find.text(wrong));
+    await t.pump(const Duration(seconds: 2));
+    expect(find.text('Not right'), findsOneWidget);
+    expect(find.textContaining('You said “$wrong”, but look what happened. ${item.explain}'), findsOneWidget);
+    // No way on until the explanation has been heard, and never a Next.
+    expect(find.text('Listen to Tiko…'), findsOneWidget);
+    expect(find.text('Next'), findsNothing);
+    await t.pump(const Duration(seconds: 8));
+    await t.tap(find.text('Try again'));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(find.text('Not right'), findsNothing);
+
+    // Tapping the wrong one again is still wrong.
+    await t.tap(find.text(wrong));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(find.text('Not right'), findsOneWidget);
+    await t.pump(const Duration(seconds: 8));
+    await t.tap(find.text('Try again'));
+    await t.pump(const Duration(milliseconds: 300));
+
+    await t.tap(find.text(right));
+    await t.pump(const Duration(milliseconds: 300));
+    expect(find.text('Correct!'), findsOneWidget);
+    expect(find.textContaining('That’s right! ${item.explain}'), findsOneWidget);
+    await t.pump(const Duration(seconds: 8));
+    expect(find.text('Next'), findsOneWidget);
+    await t.pumpWidget(const SizedBox());
+    await t.pump(const Duration(seconds: 3));
+    t.view.resetPhysicalSize();
+    t.view.resetDevicePixelRatio();
+  });
+
   testWidgets('a whole level plays through to the reward and is saved', (t) async {
     t.view.physicalSize = const Size(390, 844) * 2;
     t.view.devicePixelRatio = 2;
@@ -158,7 +202,11 @@ void main() {
         await t.tap(find.text(verb));
         await t.pump(const Duration(milliseconds: 100));
       }
-      await t.pump(const Duration(seconds: 2));
+      // The explanation must finish before Next unlocks.
+      expect(find.text('Listen to Tiko…'), findsOneWidget);
+      await t.pump(const Duration(seconds: 5));
+      await t.tap(find.byWidgetPredicate((w) => w is Text && (w.data == 'Next' || w.data == 'Finish')));
+      await t.pump(const Duration(seconds: 1));
     }
     await t.pump(const Duration(seconds: 1));
     expect(find.byType(RewardScreen), findsOneWidget);

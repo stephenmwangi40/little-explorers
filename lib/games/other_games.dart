@@ -137,10 +137,20 @@ class _StoryGameState extends State<StoryGame> {
                     label: (i) => story.choices[i].startsWith('face:') ? story.choices[i].substring(5) : 'picture ${i + 1}',
                     builder: (i) => Pic(story.choices[i], size: 70),
                     onPick: (i) {
+                      String? face(int k) =>
+                          story.choices[k].startsWith('face:') ? story.choices[k].substring(5) : null;
+                      final clue = story.hint.endsWith('?') ? '' : ' ${story.hint}';
                       if (i == story.answer) {
-                        api.correct(praise: story.feelings ? 'Yes. Good noticing!' : 'Yes! You remembered!');
+                        api.correct(
+                            praise: story.feelings
+                                ? 'That’s right! The answer is ${face(i)}.$clue You noticed how they feel.'
+                                : 'That’s right!$clue You listened carefully to the story.');
                       } else {
-                        api.wrong(hint: story.hint, model: 'Let’s look back. ${story.pages.join(' ')}');
+                        api.wrong(
+                            hint: face(i) != null
+                                ? 'Not ${face(i)}. ${story.hint}'
+                                : 'That is not what happened in the story. ${story.hint}',
+                            model: 'Let’s look back. ${story.pages.join(' ')}');
                       }
                     },
                   )
@@ -177,17 +187,46 @@ class _LabGameState extends State<LabGame> {
     WidgetsBinding.instance.addPostFrameCallback((_) => widget.api.say('${topic.question(item)} What do you think?'));
   }
 
+  bool _revealing = false;
+
+  String get _rightLabel => topic.optionLabels[item.truth];
+
+  /// First tap: the child predicts, we test it, then say plainly whether the
+  /// prediction was right and why. After a wrong prediction the child must tap
+  /// the correct answer (it shines) before moving on.
   void _predict(int i) {
-    setState(() => _guess = i);
+    if (_revealing) return;
+    if (_tested) {
+      if (i == item.truth) {
+        widget.api.correct(praise: 'That’s right! ${item.explain}');
+      } else {
+        widget.api.wrong(
+            hint: 'Look at what happened. ${item.explain}',
+            model: item.explain,
+            retry: 'Tap “$_rightLabel”.');
+      }
+      return;
+    }
+    setState(() {
+      _guess = i;
+      _revealing = true;
+    });
     Audio.I.sfx('tap');
-    // Every prediction is welcome: there are no wrong answers in science.
-    widget.api.say('Good thinking! Let’s find out…');
-    AppScope.read(context).recordAnswer(widget.level.skill, ok: i == item.truth);
-    Timer(const Duration(milliseconds: 900), () {
+    widget.api.say('You said “${topic.optionLabels[i]}”. Let’s test it and see…');
+    Timer(const Duration(milliseconds: 1600), () {
       if (!mounted) return;
-      setState(() => _tested = true);
-      Audio.I.sfx(i == item.truth ? 'correct' : 'tap');
-      widget.api.say(i == item.truth ? 'You were right! ${item.explain}' : 'Good guess! ${item.explain}');
+      setState(() {
+        _tested = true;
+        _revealing = false;
+      });
+      if (i == item.truth) {
+        widget.api.correct(praise: 'That’s right! ${item.explain}');
+      } else {
+        widget.api.wrong(
+            hint: 'You said “${topic.optionLabels[i]}”, but look what happened. ${item.explain}',
+            model: item.explain,
+            retry: 'Now tap “$_rightLabel”.');
+      }
     });
   }
 
@@ -241,12 +280,10 @@ class _LabGameState extends State<LabGame> {
     return Responsive(builder: (context, l) {
       final opts = Wrap(alignment: WrapAlignment.center, spacing: 12, runSpacing: 12, children: [
         for (var i = 0; i < topic.options.length; i++)
-          _tested && i != item.truth && i != _guess
-              ? const SizedBox.shrink()
-              : Opacity(
-                  opacity: _guess == null || _guess == i || (_tested && i == item.truth) ? 1 : .5,
+          Opacity(
+                  opacity: _revealing && _guess != i ? .5 : 1,
                   child: ChunkyButton(
-                    onTap: _guess == null ? () => _predict(i) : null,
+                    onTap: _revealing ? null : () => _predict(i),
                     color: _tested && i == item.truth ? C.green : Colors.white,
                     shadow: _tested && i == item.truth ? C.greenDark : const Color(0x331F2A44),
                     semantics: topic.optionLabels[i],
@@ -269,13 +306,7 @@ class _LabGameState extends State<LabGame> {
           _stage(l),
         ]),
         coach: gameCoach(widget.coach, mood: _tested ? TikoMood.cheer : TikoMood.think),
-        answers: Column(mainAxisSize: MainAxisSize.min, children: [
-          opts,
-          if (_tested) ...[
-            const SizedBox(height: 14),
-            ChunkyButton.text('Next', icon: Icons.arrow_forward_rounded, onTap: api.finishRound),
-          ],
-        ]),
+        answers: opts,
       );
     });
   }
@@ -318,8 +349,10 @@ class _MoveGameState extends State<MoveGame> {
     Audio.I.sfx('tap');
     if (_count >= reps) {
       Audio.I.sfx('correct');
-      widget.api.say('Amazing moving! You did $reps!');
-      widget.api.finishRound();
+      widget.api.finishRound(
+          praise: move.breath
+              ? 'Well done! You took $reps slow breaths. Slow breathing helps your body feel calm.'
+              : 'Well done! You did it $reps times. Moving makes your body strong and helps your brain wake up.');
     } else {
       widget.api.say(move.breath ? (_count.isOdd ? 'Breathe in… and out.' : 'Slowly in… and out.') : '$_count!');
     }

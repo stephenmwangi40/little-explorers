@@ -29,8 +29,8 @@ void main() {
       rng: Random(l.number * 31 + round),
       say: (_, {speech}) {},
       correct: ({skill, praise}) {},
-      wrong: ({hint, skill, model}) {},
-      finishRound: () {},
+      wrong: ({hint, skill, model, retry}) {},
+      finishRound: ({praise}) {},
     );
     await t.pumpWidget(AppScope(
       state: s,

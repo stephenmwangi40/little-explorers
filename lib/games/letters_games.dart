@@ -62,14 +62,17 @@ class _LetterSoundGameState extends State<LetterSoundGame> {
 
   void _pick(int i) {
     if (i == correct) {
-      widget.api.correct(skill: 'snd_$target', praise: 'Yes! /$target/, ${kw.word}!');
+      widget.api.correct(
+          skill: 'snd_$target',
+          praise: 'That’s right! The letter $target says /$target/. You can hear /$target/ '
+              '${kw.ending ? 'at the end of' : 'in'} ${kw.word}.');
     } else {
       final g = options[i];
       final other = keywords[g]!.first.word;
       widget.api.wrong(
         skill: 'snd_$target',
-        hint: 'That’s /$g/, like $other. Listen: /$target/ ${kw.word}!',
-        model: 'This one says /$target/: $target, ${kw.word}!',
+        hint: 'The letter $g says /$g/, like $other. We are listening for /$target/, like ${kw.word}.',
+        model: 'The letter $target says /$target/, like ${kw.word}.',
       );
     }
   }
@@ -180,12 +183,15 @@ class _BlendGameState extends State<BlendGame> {
 
   void _pick(int i) {
     if (i == correct) {
-      widget.api.correct(praise: 'Yes! ${word.sounds.join('-')}… ${word.word}!');
+      final parts = word.sounds.map((s) => '/$s/').join(' ');
+      widget.api.correct(praise: 'That’s right! $parts blend together to make ${word.word}, and this picture is ${word.word}.');
     } else {
       final w = options[i];
+      final parts = word.sounds.map((s) => '/$s/').join(' ');
       widget.api.wrong(
-        hint: 'That’s ${w.word}: ${w.sounds.map((s) => '/$s/').join(' ')}. Blend again: ${word.sounds.join('-')}!',
-        model: '${word.sounds.join('-')}… ${word.word}. This is the ${word.word}!',
+        hint: 'That picture is ${w.word}, which sounds ${w.sounds.map((s) => '/$s/').join(' ')}. '
+            'We blended $parts, which makes ${word.word}.',
+        model: '$parts makes ${word.word}. The ${word.word} is shining.',
       );
     }
   }
@@ -372,16 +378,19 @@ class _TraceGameState extends State<TraceGame> {
   void _done() {
     final (acc, cov) = _score();
     if (acc >= .6 && cov >= .5) {
-      widget.api.correct(praise: 'Beautiful $letter!');
+      widget.api.correct(
+          praise: 'That’s right! You traced the letter $letter: you followed its shape all the way along.');
     } else if (cov < .5) {
       widget.api.wrong(
-          hint: 'Keep tracing! Follow the whole letter $letter.',
-          model: 'Watch the green dot. Start there and follow the letter. Great try!');
+          hint: 'Part of the letter $letter is not traced yet. Follow the whole letter, from the green dot to the end.',
+          model: 'Start at the green dot and follow the faint letter $letter all the way to the end.',
+          retry: 'Try tracing it again.');
       setState(_strokes.clear);
     } else {
       widget.api.wrong(
-          hint: 'Stay on the letter. Start at the green dot!',
-          model: 'Let’s trace it together next time. Great try!');
+          hint: 'Your line went off the letter $letter. Start at the green dot and stay on the faint letter.',
+          model: 'Start at the green dot and keep your finger on the faint letter $letter.',
+          retry: 'Try tracing it again.');
       setState(_strokes.clear);
     }
   }

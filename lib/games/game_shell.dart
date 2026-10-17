@@ -29,8 +29,8 @@ class GameApi {
   final Random rng;
   final void Function(String text, {String? speech}) say;
   final void Function({String? skill, String? praise}) correct;
-  final void Function({String? hint, String? skill, String? model}) wrong;
-  final void Function() finishRound; // for activities with no wrong answers
+  final void Function({String? hint, String? skill, String? model, String? retry}) wrong;
+  final void Function({String? praise}) finishRound; // for activities with no wrong answers
 
   const GameApi({
     required this.round,
@@ -66,7 +66,6 @@ class _GameShellState extends State<GameShell> {
   // Duolingo-style instant feedback banner: null, true (right) or false (try again).
   bool? _feedback;
   String _feedbackText = '';
-  int _feedbackId = 0;
   late int _rounds;
   final _rng = Random();
   Timer? _t;
@@ -94,6 +93,7 @@ class _GameShellState extends State<GameShell> {
     Audio.I.say(text, speech: speech);
   }
 
+  /// A right answer: explain why it is right, then wait for "Next".
   void _correct({String? skill, String? praise}) {
     if (_busy) return;
     _busy = true;
@@ -101,45 +101,41 @@ class _GameShellState extends State<GameShell> {
     s.recordAnswer(skill ?? level.skill, ok: true, hint: _hint > 0);
     Audio.I.sfx('correct');
     HapticFeedback.mediumImpact();
-    final line = praise ?? const ['Yes! Well done!', 'You got it!', 'Brilliant!', 'That’s right!'][_rng.nextInt(4)];
+    final line = praise ?? 'That’s right! Well done!';
     _showFeedback(true, line);
-    _say(line);
     _earned++;
-    _t = Timer(const Duration(milliseconds: 1300), _next);
   }
 
-  void _wrong({String? hint, String? skill, String? model}) {
+  /// A wrong answer is called wrong, explained, and the child tries again.
+  /// The game never moves on until the right answer is chosen.
+  void _wrong({String? hint, String? skill, String? model, String? retry}) {
     if (_busy) return;
     final s = AppScope.read(context);
     s.recordAnswer(skill ?? level.skill, ok: false);
     Audio.I.sfx('try');
     HapticFeedback.lightImpact();
     setState(() => _hint++);
-    _showFeedback(false, _hint >= 3 ? (model ?? 'Let’s do it together!') : (hint ?? 'Nice try! Listen again.'));
-    if (_hint >= 3) {
-      // Hint step 3: do it together, then move on kindly.
-      _busy = true;
-      _say(model ?? 'Let’s do it together. Watch me!');
-      _t = Timer(const Duration(milliseconds: 2600), _next);
-    } else if (_hint == 2) {
-      _say(hint ?? 'Look, I’ll show you. Try the shining one!');
-    } else {
-      _say(hint ?? 'Nice try! Listen again.');
-    }
+    final why = hint ?? 'Look again carefully.';
+    // From the second miss, Tiko shows the right answer (it shines) and the
+    // child still has to choose it.
+    final line = _hint >= 2
+        ? 'That’s not right. ${model ?? why} ${retry ?? 'Now tap the shining answer.'}'
+        : 'That’s not right. $why ${retry ?? 'Try again!'}';
+    _showFeedback(false, line);
   }
 
   void _showFeedback(bool right, String text) {
     if (!mounted) return;
-    final id = ++_feedbackId;
     setState(() {
       _feedback = right;
       _feedbackText = text;
     });
-    if (!right) {
-      Timer(const Duration(milliseconds: 2600), () {
-        if (mounted && _feedbackId == id) setState(() => _feedback = null);
-      });
-    }
+    Audio.I.say(text);
+  }
+
+  void _tryAgain() {
+    if (!mounted) return;
+    setState(() => _feedback = null);
   }
 
   void _next() {
@@ -179,11 +175,12 @@ class _GameShellState extends State<GameShell> {
       say: _say,
       correct: _correct,
       wrong: _wrong,
-      finishRound: () {
+      finishRound: ({String? praise}) {
         if (_busy) return;
         _busy = true;
         _earned++;
-        _t = Timer(const Duration(milliseconds: 900), _next);
+        Audio.I.sfx('correct');
+        _showFeedback(true, praise ?? 'Well done! You finished this part.');
       },
     );
     final light = level.world != WorldId.move;
@@ -216,11 +213,20 @@ class _GameShellState extends State<GameShell> {
                 ),
               ),
             ),
+            // While Tiko explains, the game waits: nothing else can be tapped.
+            if (_feedback != null)
+              Positioned.fill(child: ModalBarrier(color: C.ink.withValues(alpha: .25), dismissible: false)),
             Positioned(
               left: 0,
               right: 0,
-              top: 0,
-              child: IgnorePointer(child: FeedbackBanner(right: _feedback, text: _feedbackText)),
+              bottom: 0,
+              child: FeedbackPanel(
+                right: _feedback,
+                text: _feedbackText,
+                last: _round + 1 >= _rounds,
+                onNext: _next,
+                onTryAgain: _tryAgain,
+              ),
             ),
           ]),
         ),
@@ -439,56 +445,105 @@ List<int> pickNumbers(Random r, int must, int count, int from, int to) {
 /// Primary call-to-action used by several games.
 Widget doneButton(String text, VoidCallback onTap) => ChunkyButton.text(text, onTap: onTap);
 
-/// Instant feedback after every answer: a big, clear banner (solid colour,
-/// icon + words, so colour is never the only cue). Never says "wrong".
-class FeedbackBanner extends StatelessWidget {
+
+/// Feedback after every answer, at the bottom of the screen (like Duolingo):
+/// - right: "Correct!", the full explanation, then "Next";
+/// - wrong: "Not right", why, then "Try again".
+/// Buttons stay off until Tiko has finished explaining, so the child
+/// always hears (and sees) the whole explanation before going on.
+class FeedbackPanel extends StatelessWidget {
   final bool? right;
   final String text;
-  const FeedbackBanner({super.key, required this.right, required this.text});
+  final bool last;
+  final VoidCallback onNext;
+  final VoidCallback onTryAgain;
+  const FeedbackPanel({
+    super.key,
+    required this.right,
+    required this.text,
+    required this.last,
+    required this.onNext,
+    required this.onTryAgain,
+  });
 
   @override
   Widget build(BuildContext context) {
     final show = right != null;
     final ok = right ?? true;
     final still = reduceMotion(context);
+    final bg = ok ? const Color(0xFFE7F8EE) : const Color(0xFFFFECE6);
+    final accent = ok ? C.greenDark : C.coralDark;
     return AnimatedSlide(
-      offset: show ? Offset.zero : const Offset(0, -1.4),
-      duration: still ? Duration.zero : const Duration(milliseconds: 280),
-      curve: Curves.easeOutBack,
-      child: AnimatedOpacity(
-        opacity: show ? 1 : 0,
-        duration: still ? Duration.zero : const Duration(milliseconds: 200),
-        child: Semantics(
-          liveRegion: true,
-          label: show ? text : null,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            padding: const EdgeInsets.fromLTRB(12, 10, 18, 10),
-            decoration: BoxDecoration(
-              color: ok ? C.green : const Color(0xFFFFC94D),
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [BoxShadow(color: ok ? C.greenDark : C.amberDark, offset: const Offset(0, 5))],
-            ),
-            child: Row(children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
-                child: Icon(ok ? Icons.check_rounded : Icons.lightbulb_rounded, color: ok ? C.greenDark : C.amberDark, size: 28),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  ok ? text : 'Nearly! $text',
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: baloo(19, color: ok ? Colors.white : C.ink, height: 1.15),
+      offset: show ? Offset.zero : const Offset(0, 1.2),
+      duration: still ? Duration.zero : const Duration(milliseconds: 260),
+      curve: Curves.easeOutCubic,
+      child: !show
+          ? const SizedBox.shrink()
+          : Semantics(
+              liveRegion: true,
+              label: '${ok ? 'Correct' : 'Not right'}. $text',
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: accent, width: 2.5),
+                  boxShadow: [BoxShadow(color: accent.withValues(alpha: .35), offset: const Offset(0, 6))],
                 ),
+                child: Responsive(builder: (context, l) {
+                  final title = Row(children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                      child: Icon(ok ? Icons.check_rounded : Icons.close_rounded, color: Colors.white, size: 30),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(ok ? 'Correct!' : 'Not right', style: baloo(l.large ? 30 : 24, color: accent, height: 1.1)),
+                    ),
+                    GlassIconButton(
+                      icon: Icons.volume_up_rounded,
+                      label: 'Hear it again',
+                      color: accent,
+                      tone: GlassTone.strong,
+                      size: 44,
+                      onTap: () => Audio.I.say(text),
+                    ),
+                  ]);
+                  final words = ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: l.size.height < 500 ? 90 : 200),
+                    child: SingleChildScrollView(
+                      child: Text(text, style: baloo(l.large ? 22 : 18, weight: 700, color: C.ink, height: 1.3)),
+                    ),
+                  );
+                  final button = ValueListenableBuilder<bool>(
+                    valueListenable: Audio.I.speaking,
+                    builder: (context, talking, _) => ChunkyButton(
+                      onTap: talking ? null : (ok ? onNext : onTryAgain),
+                      color: ok ? C.green : C.coral,
+                      shadow: ok ? C.greenDark : C.coralDark,
+                      width: double.infinity,
+                      semantics: talking ? 'Listening' : (ok ? (last ? 'Finish' : 'Next') : 'Try again'),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(talking ? Icons.hearing_rounded : (ok ? Icons.arrow_forward_rounded : Icons.replay_rounded),
+                            color: Colors.white),
+                        const SizedBox(width: 8),
+                        Text(talking ? 'Listen to Tiko…' : (ok ? (last ? 'Finish' : 'Next') : 'Try again'),
+                            style: baloo(22, color: Colors.white)),
+                      ]),
+                    ),
+                  );
+                  return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                    title,
+                    const SizedBox(height: 10),
+                    words,
+                    const SizedBox(height: 14),
+                    button,
+                  ]);
+                }),
               ),
-            ]),
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

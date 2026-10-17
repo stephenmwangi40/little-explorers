@@ -152,4 +152,24 @@ void main() {
     }
     await tidy(t);
   });
+
+  testWidgets('the explanation panel fits every screen, even with big text', (t) async {
+    const long = 'That’s not right. You said “Sink”, but look what happened. It floats! Apples have air inside. '
+        'Now tap “Float”.';
+    for (final sz in const [Size(320, 568), Size(844, 390), Size(390, 844), Size(1366, 1024), Size(1024, 1366)]) {
+      for (final right in [true, false]) {
+        await pumpAt(
+            t,
+            sz,
+            Scaffold(
+                body: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: FeedbackPanel(right: right, text: long, last: false, onNext: () {}, onTryAgain: () {}))),
+            text: 1.3);
+        expect(t.takeException(), isNull, reason: '$sz right=$right');
+        expect(find.text(right ? 'Correct!' : 'Not right'), findsOneWidget);
+      }
+    }
+    await tidy(t);
+  });
 }
