@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../content/levels.dart';
 import '../content/phonics.dart';
+import '../content/stories_extra.dart';
 import '../content/stories_more.dart';
 import '../core/theme.dart';
 import '../core/widgets/art.dart';
@@ -670,7 +671,7 @@ class _FeelingsState extends _PickGameState<FeelingsGame> {
   @override
   void setup(Random r) {
     final off = widget.level.p['offset'] as int;
-    sc = scenarios[(off + api.round * 7) % scenarios.length];
+    sc = feelingsBook[(off + api.round * 7) % feelingsBook.length];
     const faces = ['face:happy', 'face:sad', 'face:sleepy', 'face:scared', 'face:surprised', 'face:cross', 'face:proud'];
     options = _pick<String>(r, sc.feeling, faces, min(api.choices, 3));
     answer = options.indexOf(sc.feeling);

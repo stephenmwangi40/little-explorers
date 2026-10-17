@@ -13,6 +13,7 @@ import '../core/widgets/buttons.dart';
 import '../core/widgets/glass.dart';
 import '../core/widgets/scene.dart';
 import '../core/widgets/tiko.dart';
+import '../services/reminders.dart';
 import '../services/subscriptions.dart';
 import 'onboarding.dart';
 import 'stickers_together.dart';
@@ -156,7 +157,8 @@ class SkillArea {
   final Color color;
   final Set<GameType> types;
   final List<String> tags;
-  const SkillArea(this.name, this.color, this.types, this.tags);
+  final WorldId? world; // limit to one world (both new worlds use the quiz game)
+  const SkillArea(this.name, this.color, this.types, this.tags, {this.world});
 }
 
 const skillAreas = [
@@ -164,7 +166,7 @@ const skillAreas = [
     'US · CCSS RF.K.3a', 'US · Head Start ELOF: Literacy', 'AU · EYLF Outcome 5', 'AU · AC v9 English F (phonics)',
     'EU · Aistear: Communicating'
   ]),
-  SkillArea('Blending, rhymes & tricky words', Color(0xFFE05A3A), {GameType.blend, GameType.rhyme, GameType.sightWord},
+  SkillArea('Reading, spelling & rhymes', Color(0xFFE05A3A), {GameType.blend, GameType.rhyme, GameType.sightWord, GameType.readWord, GameType.missingLetter},
       ['US · CCSS RF.K.2, RF.K.3', 'US · ELOF: Literacy', 'AU · EYLF Outcome 5', 'AU · AC v9 English F', 'EU · Aistear: Communicating']),
   SkillArea('Counting & cardinality', Color(0xFF3DBE7A), {GameType.count, GameType.numeral, GameType.quickLook, GameType.makeN, GameType.numberOrder},
       ['US · CCSS K.CC.4, K.CC.5', 'US · ELOF: Mathematics', 'AU · AC9MFN01, AC9MFN02', 'AU · EYLF Outcome 4', 'EU · Aistear: Exploring & Thinking']),
@@ -172,18 +174,26 @@ const skillAreas = [
       ['US · CCSS K.OA.1, K.OA.2, K.OA.5', 'US · ELOF: Mathematics', 'AU · AC v9 Maths F (Number: add & take away)', 'EU · Aistear: Exploring & Thinking']),
   SkillArea('Comparing groups & numbers', Color(0xFF2A9D60), {GameType.compare, GameType.compareNumbers},
       ['US · CCSS K.CC.6', 'US · ELOF: Mathematics', 'AU · AC v9 Maths F (Number)', 'EU · Aistear: Exploring & Thinking']),
-  SkillArea('Shapes & patterns', Color(0xFF9B6BFF), {GameType.shapeSort, GameType.pattern, GameType.shapeFind, GameType.size, GameType.solid, GameType.position, GameType.shapeCount},
+  SkillArea('Shapes & patterns', Color(0xFF9B6BFF), {GameType.shapeSort, GameType.pattern, GameType.shapeFind, GameType.size, GameType.solid, GameType.position, GameType.shapeCount, GameType.oddOneOut},
       ['US · CCSS K.G.1, K.G.2, K.G.3', 'US · ELOF: Geometry & Patterning', 'AU · AC v9 Maths F (Space, Algebra)', 'EU · Aistear: Exploring & Thinking']),
   SkillArea('Feelings & story', Color(0xFFE86A92), {GameType.story, GameType.feelings},
       ['US · CCSS RL.K.1', 'US · ELOF: Social & Emotional', 'AU · EYLF Outcomes 1, 3 & 5', 'EU · Aistear: Well-being; Identity & Belonging']),
   SkillArea('Science: predict & test', Color(0xFF4DA3FF), {GameType.lab},
       ['US · ELOF: Scientific Reasoning', 'AU · EYLF Outcome 4', 'AU · AC v9 Science F', 'EU · Aistear: Exploring & Thinking']),
+  SkillArea('Telling the time', Color(0xFF1F8F57), {GameType.clock},
+      ['US · CCSS 1.MD.3 (stretch)', 'US · ELOF: Measurement', 'AU · AC v9 Maths F–1 (Measurement)', 'EU · Aistear: Exploring & Thinking']),
+  SkillArea('Vocabulary & language', Color(0xFF2EC4B6), {GameType.quiz},
+      ['US · CCSS L.K.5 (word relationships)', 'US · ELOF: Language & Communication', 'AU · EYLF Outcome 5', 'EU · Aistear: Communicating'],
+      world: WorldId.words),
+  SkillArea('Health, safety & self-care', Color(0xFF6FBF3A), {GameType.quiz},
+      ['US · ELOF: Perceptual, Motor & Physical (health and safety)', 'US · ELOF: Social & Emotional', 'AU · EYLF Outcome 3 (wellbeing)', 'EU · Aistear: Well-being'],
+      world: WorldId.health),
   SkillArea('Movement', Color(0xFFFFB703), {GameType.move},
       ['US · ELOF: Perceptual, Motor & Physical', 'AU · EYLF Outcome 3', 'EU · Aistear: Well-being']),
 ];
 
 List<Level> _levelsOf(SkillArea a) =>
-    [for (final ls in allLevels.values) ...ls.where((l) => a.types.contains(l.type))];
+    [for (final ls in allLevels.values) ...ls.where((l) => a.types.contains(l.type) && (a.world == null || l.world == a.world))];
 
 (int done, int total, Level? next) areaProgress(AppState s, SkillArea a) {
   final ls = _levelsOf(a);
@@ -269,7 +279,7 @@ class ParentDashboard extends StatelessWidget {
               ]),
             ),
             const SizedBox(height: 8),
-            Text('Daily limit ${s.settings.dailyLimit} min · under the 1-hour daily guidance for ages 2–5',
+            Text('Daily limit ${s.settings.dailyLimit} min · ${s.settings.dailyLimit <= 60 ? 'within' : 'above'} the 1-hour daily guidance for ages 2–5',
                 style: nunito(12, color: C.muted)),
           ]),
         ),
@@ -510,11 +520,44 @@ class SettingsScreen extends StatelessWidget {
           title: 'Time',
           child: Column(children: [
             _Row('Adventure length',
-                _Seg(const ['10', '15', '20', '30 min'], [10, 15, 20, 30].indexOf(st.adventureMinutes), (i) => set((x) => x.adventureMinutes = [10, 15, 20, 30][i]))),
+                _Seg(const ['15', '30', '45', '60 min'], [15, 30, 45, 60].indexOf(st.adventureMinutes), (i) => set((x) => x.adventureMinutes = [15, 30, 45, 60][i]))),
             _Row('Daily limit',
-                _Seg(const ['20', '30', '45', '60'], [20, 30, 45, 60].indexOf(st.dailyLimit), (i) => set((x) => x.dailyLimit = [20, 30, 45, 60][i]))),
+                _Seg(const ['30', '45', '60', '90'], [30, 45, 60, 90].indexOf(st.dailyLimit), (i) => set((x) => x.dailyLimit = [30, 45, 60, 90][i])),
+                sub: 'Guidance for ages 2–5: about 1 hour a day'),
             _Row('Bedtime lock', _toggle(st.bedtimeLock, (v) => set((x) => x.bedtimeLock = v)), sub: 'No play 7 pm – 7 am'),
             _Row('Movement breaks', _toggle(st.moveBreaks, (v) => set((x) => x.moveBreaks = v)), sub: 'In every daily adventure'),
+          ]),
+        ),
+        _Card(
+          title: 'Reminders for grown-ups',
+          child: Column(children: [
+            _Row(
+              'Daily adventure reminder',
+              _toggle(st.reminder, (v) async {
+                if (v && !await Reminders.I.requestPermission()) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Notifications are turned off for this app. Turn them on in your device settings.')));
+                  }
+                  return;
+                }
+                set((x) => x.reminder = v);
+                v
+                    ? Reminders.I.scheduleDaily(hour: st.reminderHour, minutes: st.adventureMinutes)
+                    : Reminders.I.cancelDaily();
+              }),
+              sub: 'Off by default. Sent to this device only, never to your child.',
+            ),
+            if (st.reminder)
+              _Row(
+                'Reminder time',
+                _Seg(const ['3 pm', '4 pm', '5 pm', '6 pm'], [15, 16, 17, 18].indexOf(st.reminderHour), (i) {
+                  set((x) => x.reminderHour = [15, 16, 17, 18][i]);
+                  Reminders.I.scheduleDaily(hour: [15, 16, 17, 18][i], minutes: st.adventureMinutes);
+                }),
+              ),
+            const _Row('Trial reminder', Icon(Icons.check_circle_rounded, color: C.green),
+                sub: '2 days before a free trial ends, if notifications are allowed'),
           ]),
         ),
         _Card(
@@ -722,7 +765,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               tone: GlassTone.dark,
               child: Column(children: [
                 for (final t in const [
-                  'Every world, all 960 levels',
+                  'All 8 worlds and 2,400 levels',
                   'Up to 4 child profiles',
                   'Full offline play',
                   'No ads, ever',
@@ -808,6 +851,9 @@ What we collect
 
 Purchases
 • Explorer Plus is billed by Apple or Google. We never see your card details. The store tells the app only whether a subscription is active.
+
+Reminders
+• Optional reminders for grown-ups are off by default. If you turn them on, they are scheduled on this device by the system; nothing is sent to us.
 
 Text-to-speech
 • Tiko's voice uses your device's built-in text-to-speech engine. Check your device settings for how that engine handles data; the app only sends it the words to read.

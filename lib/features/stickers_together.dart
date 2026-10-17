@@ -10,7 +10,7 @@ import '../core/widgets/buttons.dart';
 import '../core/widgets/glass.dart';
 import '../core/widgets/scene.dart';
 import '../core/widgets/tiko.dart';
-import '../content/stories_more.dart';
+import '../content/stories_extra.dart';
 import 'home.dart';
 import 'reward.dart';
 
@@ -162,7 +162,7 @@ List<TogetherCard> togetherCards(List<String> recent, List<String> stickers) {
     } else if (sk.startsWith('story') || sk == 'feelings') {
       final idx = stickers.reversed.map(levelById).whereType<Level>().where((l) => l.type == GameType.story).firstOrNull;
       add(TogetherCard('Retell the story', 'bedtime',
-          idx != null ? allStories[idx.p['story'] as int].talk : 'How did Momo feel? What would you do to help?'));
+          idx != null ? storyBook[idx.p['story'] as int].talk : 'How did Momo feel? What would you do to help?'));
     } else if (sk.startsWith('lab_')) {
       add(const TogetherCard('Kitchen science', 'off screen',
           'Fill a bowl with water. Guess first: will a spoon, a cork and a leaf float or sink? Then test!'));

@@ -82,6 +82,17 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                     Text(cur.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: baloo(20, color: Colors.white, height: 1.1)),
                   ]),
                 ),
+                if (s.practiceLevel(widget.world) != null) ...[
+                  ChunkyButton(
+                    onTap: () => playLevel(context, s.practiceLevel(widget.world)!),
+                    color: Colors.white.withValues(alpha: .25),
+                    shadow: const Color(0x331F2A44),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    semantics: 'Practice a tricky skill',
+                    child: const Icon(Icons.fitness_center_rounded, color: Colors.white),
+                  ),
+                  const SizedBox(width: 10),
+                ],
                 ChunkyButton.text('Play',
                     color: Colors.white,
                     shadow: const Color(0x331F2A44),
@@ -166,6 +177,19 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
     return SizedBox(
       height: 92,
       child: Stack(clipBehavior: Clip.none, children: [
+        // Dotted path up to the next level (Duolingo-style trail).
+        if (i + 1 < allLevels[lv.world]!.length)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: _PathPainter(
+                  from: Offset(10 + left + d / 2, 10 + d / 2),
+                  to: Offset(10 + offsets[(i + 1) % offsets.length] * (width - d - 20) + d / 2, 10 + d / 2 - 92),
+                  color: Colors.white.withValues(alpha: done ? .9 : .45),
+                ),
+              ),
+            ),
+          ),
         Positioned(left: 10 + left, top: 10, child: node),
         if (labelRight)
           Positioned(right: width - left - 4, top: 30, width: left - 14, child: Align(alignment: Alignment.centerRight, child: label))
@@ -213,4 +237,28 @@ class _RingState extends State<_Ring> with SingleTickerProviderStateMixin {
           ),
         widget.child,
       ]);
+}
+
+/// A soft dotted line joining one level to the next.
+class _PathPainter extends CustomPainter {
+  final Offset from, to;
+  final Color color;
+  _PathPainter({required this.from, required this.to, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..strokeWidth = 6
+      ..strokeCap = StrokeCap.round;
+    final dist = (to - from).distance;
+    final steps = (dist / 16).floor();
+    for (var k = 2; k < steps - 1; k++) {
+      final t = k / steps;
+      canvas.drawCircle(Offset.lerp(from, to, t)!, 3.5, p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_PathPainter o) => o.from != from || o.to != to || o.color != color;
 }

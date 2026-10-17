@@ -32,7 +32,7 @@ export default {
     if (path !== "/" && !path.endsWith("/") && FILES[path + "/"]) {
       return Response.redirect(url.origin + path + "/" + url.search, 301);
     }
-    if (path.startsWith("/assets/") && /\.(png|jpg|svg|ico)\$/.test(path)) {
+    if (path.startsWith("/assets/") && /\\.(png|jpg|svg|ico)\$/.test(path)) {
       const r = await fetch(IMAGES + path, { cf: { cacheTtl: 86400, cacheEverything: true } });
       const h = new Headers(r.headers);
       h.set("cache-control", "public, max-age=86400");

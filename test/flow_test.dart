@@ -22,12 +22,16 @@ AppState fresh({DateTime? now}) {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('30-minute adventure visits all six worlds, 5 rounds each', () {
+  test('45-minute adventure visits all eight worlds; 60 adds a second movement break', () {
     final s = fresh();
-    expect(s.settings.adventureMinutes, 30);
-    expect(s.settings.dailyLimit, 30);
+    expect(s.settings.adventureMinutes, 45);
+    expect(s.settings.dailyLimit, 60);
     expect(s.adventureWorlds, WorldId.values);
     expect(s.roundsPerStep, 5);
+    s.settings.adventureMinutes = 60;
+    expect(s.adventureWorlds.length, 9);
+    expect(s.adventureWorlds.where((w) => w == WorldId.move).length, 2);
+    expect(s.roundsPerStep, 6);
     s.settings.adventureMinutes = 15;
     expect(s.adventureWorlds, [WorldId.alpha, WorldId.math, WorldId.story, WorldId.move]);
     s.settings.moveBreaks = false;
@@ -38,13 +42,13 @@ void main() {
     var now = DateTime(2026, 10, 16, 10);
     final s = AppState()..clock = () => now;
     s.addProfile(age: 4, color: C.coral, hat: 'cap');
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 8; i++) {
       final w = s.adventureWorlds[s.adventureStep];
       s.completeLevel(s.adventureLevel(w), learned: 'x$i');
       s.advanceAdventure();
     }
     expect(s.adventureDone, isTrue);
-    expect(s.current!.learnedToday.length, 6);
+    expect(s.current!.learnedToday.length, 8);
     now = DateTime(2026, 10, 17, 10);
     expect(s.adventureStep, 0);
     // Next day starts with the next new level in each world.
@@ -55,9 +59,9 @@ void main() {
     var now = DateTime(2026, 10, 16, 10);
     final s = AppState()..clock = () => now;
     s.addProfile(age: 4, color: C.coral, hat: 'cap');
-    s.current!.minutes[dayKey(now)] = 29;
+    s.current!.minutes[dayKey(now)] = 59;
     expect(s.restNow, isFalse);
-    s.current!.minutes[dayKey(now)] = 30;
+    s.current!.minutes[dayKey(now)] = 60;
     expect(s.restNow, isTrue);
     s.grantExtraTime(10);
     expect(s.restNow, isFalse);

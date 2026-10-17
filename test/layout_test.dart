@@ -100,6 +100,8 @@ void main() {
     allLevels[WorldId.math]![37], // numerals to 20
     allLevels[WorldId.math]![24], // make 10
     allLevels[WorldId.shapes]![35], // 4-shape sort with stars
+    allLevels[WorldId.health]![0], // Healthy Me quiz
+    allLevels[WorldId.math]![299], // last math level
   ]);
 
   for (final e in sizes.entries) {

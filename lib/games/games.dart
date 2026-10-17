@@ -1,12 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 
 import '../content/lab_move.dart';
 import '../content/levels.dart';
-import '../content/stories_more.dart';
+import '../content/stories_extra.dart';
 import 'game_shell.dart';
 import 'letters_games.dart';
 import 'math_games.dart';
 import 'new_games.dart';
+import 'new_games2.dart';
 import 'other_games.dart';
 import 'shape_games.dart';
 
@@ -19,12 +22,13 @@ int roundsFor(Level l, int standard) => switch (l.type) {
       GameType.shapeSort => standard >= 5 ? 2 : 1,
       GameType.lab => 4,
       GameType.feelings => 4,
+      GameType.clock => min(standard, 4),
       _ => standard,
     };
 
 /// A short label for the Rest screen ("Today you learned").
 String learnedLabel(Level l) => switch (l.type) {
-      GameType.story => allStories[l.p['story'] as int].feelings ? 'How Momo felt' : 'Momo’s story',
+      GameType.story => storyBook[l.p['story'] as int].feelings ? 'How Momo felt' : 'Momo’s story',
       GameType.feelings => 'Talking about feelings',
       GameType.move => moves[(l.p['moves'] as List).first as int].name,
       _ => l.title,
@@ -58,5 +62,10 @@ Widget buildGame(Level level, GameApi api, String coach) {
     GameType.feelings => FeelingsGame(key: k, level: level, api: api, coach: coach),
     GameType.lab => LabGame(key: k, level: level, api: api, coach: coach),
     GameType.move => MoveGame(key: k, level: level, api: api, coach: coach),
+    GameType.readWord => ReadWordGame(key: k, level: level, api: api, coach: coach),
+    GameType.missingLetter => MissingLetterGame(key: k, level: level, api: api, coach: coach),
+    GameType.clock => ClockGame(key: k, level: level, api: api, coach: coach),
+    GameType.oddOneOut => OddOneOutGame(key: k, level: level, api: api, coach: coach),
+    GameType.quiz => QuizGame(key: k, level: level, api: api, coach: coach),
   };
 }

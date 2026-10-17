@@ -232,8 +232,67 @@ const moreLabTopics = <LabTopic>[
   ]),
 ];
 
+String _meltQ(LabItem i) => 'Will the ${i.name} melt in the sun?';
+String _pushQ(LabItem i) => 'Do we push or pull the ${i.name}?';
+String _solidQ(LabItem i) => 'Is ${i.name} a solid or a liquid?';
+String _nightQ(LabItem i) => 'Is the ${i.name} awake in the day or at night?';
+String _growQ(LabItem i) => 'Will the ${i.name} grow bigger?';
+
+const extraLabTopics = <LabTopic>[
+  LabTopic('melt', 'Melt or stay?', _meltQ, ['💧', '🧱'], ['Melts', 'Stays the same'], [
+    LabItem('🧊', 'ice cube', 0, 'It melts! Ice turns into water when it is warm.'),
+    LabItem('🪨', 'rock', 1, 'It stays the same. Rocks do not melt in the sun.'),
+    LabItem('🍦', 'ice cream', 0, 'It melts! Eat it quickly on a hot day.'),
+    LabItem('🧸', 'teddy', 1, 'It stays the same. A teddy just gets warm.'),
+    LabItem('⛄', 'snowman', 0, 'It melts! Snow is frozen water.'),
+    LabItem('🍫', 'chocolate bar', 0, 'It melts! Chocolate goes soft in the heat.'),
+    LabItem('🥄', 'spoon', 1, 'It stays the same. Metal needs much more heat to melt.'),
+    LabItem('🕯️', 'candle wax', 0, 'It melts slowly when it is very warm.'),
+  ]),
+  LabTopic('push', 'Push or pull?', _pushQ, ['👉', '👈'], ['Push', 'Pull'], [
+    LabItem('🛒', 'shopping trolley', 0, 'Push! We push a trolley in front of us.'),
+    LabItem('🚪', 'door handle towards you', 1, 'Pull! We pull a door towards us to open it.'),
+    LabItem('🛝', 'swing', 0, 'Push! A push makes the swing go higher.'),
+    LabItem('🪁', 'kite string', 1, 'Pull! Pulling the string keeps the kite up.'),
+    LabItem('🛷', 'sledge rope', 1, 'Pull! We pull the sledge by its rope.'),
+    LabItem('🔘', 'button', 0, 'Push! We press buttons.'),
+    LabItem('🧸', 'wagon handle', 1, 'Pull! We pull a wagon behind us.'),
+    LabItem('⚽', 'ball with a kick', 0, 'Push! A kick pushes the ball away.'),
+  ]),
+  LabTopic('solid', 'Solid or liquid?', _solidQ, ['🧱', '💧'], ['Solid', 'Liquid'], [
+    LabItem('🧱', 'a brick', 0, 'Solid! It keeps its shape.'),
+    LabItem('🥛', 'milk', 1, 'Liquid! It pours and takes the shape of the cup.'),
+    LabItem('🧊', 'an ice cube', 0, 'Solid! Ice is frozen water.'),
+    LabItem('💧', 'water', 1, 'Liquid! Water flows.'),
+    LabItem('🍯', 'honey', 1, 'Liquid! A slow, sticky liquid.'),
+    LabItem('🪨', 'a rock', 0, 'Solid! Hard and keeps its shape.'),
+    LabItem('🧃', 'juice', 1, 'Liquid! You can pour it.'),
+    LabItem('🍎', 'an apple', 0, 'Solid! You can hold it.'),
+  ]),
+  LabTopic('nocturnal', 'Day or night animals', _nightQ, ['☀️', '🌙'], ['Day', 'Night'], [
+    LabItem('🦉', 'owl', 1, 'Night! Owls hunt in the dark.'),
+    LabItem('🐝', 'bee', 0, 'Day! Bees visit flowers in the sunshine.'),
+    LabItem('🦇', 'bat', 1, 'Night! Bats fly in the dark.'),
+    LabItem('🐿️', 'squirrel', 0, 'Day! Squirrels gather nuts in daylight.'),
+    LabItem('🦔', 'hedgehog', 1, 'Night! Hedgehogs snuffle about at night.'),
+    LabItem('🦋', 'butterfly', 0, 'Day! Butterflies love the warm sun.'),
+    LabItem('🦊', 'fox', 1, 'Night! Foxes are often out at night.'),
+    LabItem('🐓', 'rooster', 0, 'Day! Roosters crow in the morning.'),
+  ]),
+  LabTopic('grow', 'Does it grow?', _growQ, ['🌱', '✋'], ['Grows', 'Stays the same size'], [
+    LabItem('🌱', 'seedling', 0, 'It grows! Plants grow with water and sun.'),
+    LabItem('🪑', 'chair', 1, 'It stays the same. Chairs are not alive.'),
+    LabItem('🐣', 'chick', 0, 'It grows into a hen or rooster!'),
+    LabItem('🧸', 'teddy', 1, 'It stays the same. Toys do not grow.'),
+    LabItem('👶', 'baby', 0, 'It grows! Babies grow into children, like you.'),
+    LabItem('🪨', 'pebble', 1, 'It stays the same. Pebbles are not alive.'),
+    LabItem('🐛', 'caterpillar', 0, 'It grows and becomes a butterfly!'),
+    LabItem('📚', 'book', 1, 'It stays the same, but you grow when you read it!'),
+  ]),
+];
+
 /// All Wonder Lab topics, in teaching order.
-const allLabTopics = <LabTopic>[...labTopics, ...moreLabTopics];
+const allLabTopics = <LabTopic>[...labTopics, ...moreLabTopics, ...extraLabTopics];
 
 class Move {
   final String name; // "Jump like a frog"
@@ -274,4 +333,14 @@ const moves = <Move>[
   Move('Crawl like a bear', 'crawl', '🐻'),
   Move('Smell the flower, blow the candle', 'breathe', '🌸', breath: true),
   Move('Kick like a football star', 'kick', '⚽'),
+  Move('Skate on the spot', 'skate', '⛸️'),
+  Move('Paddle like a duck', 'paddle', '🦆'),
+  Move('Box like a kangaroo', 'punch', '🦘'),
+  Move('Bend like a bridge', 'bend', '🌉'),
+  Move('Twist like a corkscrew', 'twist', '🌀'),
+  Move('Climb an imaginary ladder', 'climb', '🪜'),
+  Move('Bounce like a ball', 'bounce', '🏀'),
+  Move('Fly like a rocket', 'blast off', '🚀'),
+  Move('Hug yourself tight, then let go', 'breathe', '🤗', breath: true),
+  Move('Shake your sillies out', 'shake', '🎉'),
 ];

@@ -8,7 +8,7 @@ import 'dart:io';
 const appName = 'Little Explorers';
 const repo = 'https://github.com/stephenmwangi40/little-explorers';
 const supportLink = '$repo/issues/new';
-const updated = '16 October 2026';
+const updated = '17 October 2026';
 
 const owl = '''<svg class="owl" viewBox="0 0 120 124" role="img" aria-label="Tiko the owl">
 <ellipse cx="60" cy="119" rx="30" ry="4.5" fill="rgba(31,42,68,.15)"/>
@@ -171,15 +171,17 @@ final home = '''
 
 <section aria-labelledby="worlds">
   <div class="glass section">
-    <h2 id="worlds">Six worlds, 960 levels</h2>
-    <p>Every world has 160 levels that grow with your child, from first sounds to reading words, and from counting to 3 to adding to 20.</p>
+    <h2 id="worlds">Eight worlds, 2,400 levels</h2>
+    <p>Every world has 300 levels that grow with your child: from first sounds to reading and spelling words, and from counting to 3 to adding to 20 and telling the time.</p>
     <div class="grid">
-      ${card('#FF7A59', 'Aa', 'Letters &amp; Sounds', 'Systematic phonics (s a t p i n first), tracing every letter, blending words, rhymes and tricky words.')}
-      ${card('#3DBE7A', '123', 'Math Jungle', 'Counting to 20, quick looks, more and fewer, making 10, adding and taking away, counting in 2s, 5s and 10s.')}
-      ${card('#9B6BFF', '◆', 'Shapes &amp; Patterns', 'Shapes turned and resized, 3D shapes, patterns, sizes and position words like on, under and next to.')}
-      ${card('#E86A92', '❤', 'Story Tree', '120 original read-along stories with Momo the turtle, and feelings questions that build kindness.')}
-      ${card('#4DA3FF', '⚗', 'Wonder Lab', '20 science topics. Children predict, test and explain. Every guess is welcomed.')}
-      ${card('#FFB703', '★', 'Move &amp; Groove', '30 short movement and calm-breathing breaks, with Tiko showing the way.')}
+      ${card('#FF7A59', 'Aa', 'Letters &amp; Sounds', 'Systematic phonics (s a t p i n first), tracing every letter, blending, reading and spelling words, rhymes and tricky words.')}
+      ${card('#3DBE7A', '123', 'Math Jungle', 'Counting to 20, quick looks, making 10, adding and taking away, counting in 2s, 5s and 10s, and telling the time.')}
+      ${card('#9B6BFF', '◆', 'Shapes &amp; Patterns', 'Shapes turned and resized, 3D shapes, patterns, odd one out, sizes and position words like on, under and next to.')}
+      ${card('#2EC4B6', '✿', 'Word Garden', 'Vocabulary for little talkers: naming things, opposites, colours, sorting into groups and what things are for.')}
+      ${card('#E86A92', '❤', 'Story Tree', '180 original read-along stories with Momo the turtle, and 80 feelings scenarios that build kindness.')}
+      ${card('#4DA3FF', '⚗', 'Wonder Lab', '25 science topics. Children predict, test and explain. Every guess is welcomed.')}
+      ${card('#6FBF3A', '♥', 'Healthy Me', 'Healthy habits, staying safe, my body, calm and kind feelings, my day, and days of the week.')}
+      ${card('#FFB703', '★', 'Move &amp; Groove', '40 short movement and calm-breathing breaks, with Tiko showing the way.')}
     </div>
   </div>
 </section>
@@ -199,7 +201,7 @@ final home = '''
 
 <section aria-labelledby="why">
   <div class="grid">
-    ${card('#2E3A5C', '☾', 'Healthy screen time', 'A guided daily adventure (10 to 30 minutes) ends on a calm Rest screen. Daily limits and a bedtime lock are built in.')}
+    ${card('#2E3A5C', '☾', 'Healthy screen time', 'A guided daily adventure (15 to 60 minutes) ends on a calm Rest screen. Daily limits, a bedtime lock and optional reminders for grown-ups are built in.')}
     ${card('#6C5CE7', '🔒', 'Safe by design', 'No ads, no chat, no tracking, no accounts for children. A parental gate protects settings and purchases.')}
     ${card('#3DBE7A', '✓', 'Learns with your child', 'Difficulty adapts, hints step in gently, and skills come back for review after 1, 3, 7 and 21 days.')}
     ${card('#E86A92', '♥', 'Play together', 'Ideas for talking and playing together, on and off the screen, based on what your child just learned.')}
@@ -222,16 +224,17 @@ const parents = '''
 
 <h2>How a day works</h2>
 <ul>
-<li><b>Today's Adventure</b> (10, 15, 20 or 30 minutes, you choose): letters → numbers → shapes → story → science → movement → <b>Rest</b>.</li>
+<li><b>Today's Adventure</b> (15, 30, 45 or 60 minutes, you choose): letters → numbers → shapes → words → story → science → healthy me → movement → <b>Rest</b>. The 60-minute adventure adds a second movement break.</li>
 <li>The session ends on a calm Rest screen. More time needs a grown-up, through the parental gate.</li>
-<li>Default daily limit: 30 minutes. Optional bedtime lock from 7 pm to 7 am. These work alongside iOS Screen Time and Google Family Link.</li>
+<li>Default adventure: 45 minutes. Default daily limit: 60 minutes, in line with the guidance of about 1 hour a day for ages 2–5. Optional bedtime lock from 7 pm to 7 am. These work alongside iOS Screen Time and Google Family Link.</li>
+<li><b>Optional reminders for grown-ups</b>: a friendly daily notice at a time you choose, and a reminder 2 days before a free trial ends. Off by default, never sent to your child, and never guilt-tripping.</li>
 </ul>
 
 <h2>What we never do</h2>
 <ul>
 <li>No ads, no in-game currencies, no loot boxes or random prizes.</li>
 <li>No streaks, countdowns or characters who are sad when your child leaves.</li>
-<li>No push notifications to children and no auto-play of the next activity.</li>
+<li>No notifications to children (reminders are only for grown-ups and are off unless you turn them on), and no auto-play of the next activity.</li>
 <li>Children never see prices or "ask your parents" prompts. Plans live behind the parental gate.</li>
 </ul>
 
@@ -284,6 +287,9 @@ const privacy = '''
 
 <h2>Purchases</h2>
 <p>Explorer Plus is sold through the Apple App Store or Google Play. Apple or Google handles payment. We never see your card details. The store only tells the app whether a subscription is active.</p>
+
+<h2>Reminders (notifications)</h2>
+<p>Optional reminders for grown-ups are <b>off by default</b>. If you turn them on, your device schedules them locally. Nothing is sent to us or to any server, and no notification is ever addressed to your child. You can turn them off in Grown-ups → Settings or in your device settings.</p>
 
 <h2>Spoken narration</h2>
 <p>Tiko's voice uses your device's built-in text-to-speech. The app sends only the words to read to that engine on your device.</p>
@@ -363,7 +369,9 @@ const support = '''
 <details class="glass"><summary>How do I restore my purchase on a new device?</summary><p>Grown-ups → Explorer Plus → Restore purchases. Use the same Apple ID or Google account you bought with.</p></details>
 <details class="glass"><summary>How do I delete my child's data?</summary><p>Grown-ups → Settings → Children → remove a child, or Grown-ups → Settings → Delete all data. Uninstalling the app also deletes everything. We keep no copy on our servers.</p></details>
 <details class="glass"><summary>Tiko isn't speaking. What can I do?</summary><p>Turn up the media volume and check that "Narration" is on in Grown-ups → Settings. The app uses your device's text-to-speech voice: on Android check Settings → Accessibility → Text-to-speech; on iPhone or iPad check Settings → Accessibility → Spoken Content → Voices.</p></details>
-<details class="glass"><summary>How do I change the daily time or bedtime lock?</summary><p>Grown-ups → Settings → Time. Choose the adventure length (10 to 30 minutes), daily limit and bedtime lock.</p></details>
+<details class="glass"><summary>How do I change the daily time or bedtime lock?</summary><p>Grown-ups → Settings → Time. Choose the adventure length (15, 30, 45 or 60 minutes), the daily limit (30 to 90 minutes) and the bedtime lock.</p></details>
+<details class="glass"><summary>How do I turn reminders on or off?</summary><p>Grown-ups → Settings → Reminders for grown-ups. Turn on the daily adventure reminder and pick a time (3 pm to 6 pm). Your device will ask for permission the first time. Turn it off there, or in your device's notification settings.</p></details>
+<details class="glass"><summary>What do the two new worlds teach?</summary><p>Word Garden builds vocabulary: naming things, opposites, colours, groups and what things are for. Healthy Me covers handwashing and teeth, healthy food, staying safe, body parts, calming big feelings, daily routines and days of the week.</p></details>
 <details class="glass"><summary>Does it work without the internet?</summary><p>Yes. Everything works offline once installed. The internet is only needed to buy or restore a subscription.</p></details>
 <details class="glass"><summary>Can siblings use one device?</summary><p>Yes. Add up to 4 child profiles, each with their own progress (Grown-ups → Add).</p></details>
 

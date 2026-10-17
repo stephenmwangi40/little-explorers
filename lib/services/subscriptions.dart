@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 
 import '../core/state/app_state.dart';
+import 'reminders.dart';
 
 /// Official store billing only (App Store / Google Play) via in_app_purchase.
 /// Product IDs must match those created in App Store Connect / Play Console.
@@ -89,6 +90,8 @@ class Subscriptions {
           if (ids.contains(p.productID)) {
             // A new yearly/monthly purchase starts with the 7-day free trial.
             _state?.setPlus(active: true, trial: p.status == PurchaseStatus.purchased, product: p.productID);
+            final ends = _state?.trialEnds;
+            if (ends != null) Reminders.I.scheduleTrialReminder(ends);
             status.value = 'Thank you! Explorer Plus is active.';
           }
           busy.value = false;

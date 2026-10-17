@@ -1,8 +1,8 @@
 import '../../learning/mastery.dart';
 
 class Settings {
-  int adventureMinutes; // 10 / 15 / 20 / 30
-  int dailyLimit; // 20 / 30 / 45 / 60
+  int adventureMinutes; // 15 / 30 / 45 / 60
+  int dailyLimit; // 30 / 45 / 60 / 90
   bool bedtimeLock;
   bool moveBreaks;
   String english; // US / UK / AU
@@ -14,10 +14,12 @@ class Settings {
   bool sound;
   bool music;
   bool cloudBackup;
+  bool reminder; // daily reminder for grown-ups (off by default)
+  int reminderHour; // 24-hour clock
 
   Settings({
-    this.adventureMinutes = 30,
-    this.dailyLimit = 30,
+    this.adventureMinutes = 45,
+    this.dailyLimit = 60,
     this.bedtimeLock = true,
     this.moveBreaks = true,
     this.english = 'US',
@@ -29,6 +31,8 @@ class Settings {
     this.sound = true,
     this.music = true,
     this.cloudBackup = false,
+    this.reminder = false,
+    this.reminderHour = 17,
   });
 
   Map<String, dynamic> toJson() => {
@@ -45,11 +49,13 @@ class Settings {
         'snd': sound,
         'mus': music,
         'cb': cloudBackup,
+        'rem': reminder,
+        'remH': reminderHour,
       };
 
   factory Settings.fromJson(Map<String, dynamic> j) => Settings(
-        adventureMinutes: j['adv'] as int? ?? 30,
-        dailyLimit: j['lim'] as int? ?? 30,
+        adventureMinutes: j['adv'] as int? ?? 45,
+        dailyLimit: j['lim'] as int? ?? 60,
         bedtimeLock: j['bed'] as bool? ?? true,
         moveBreaks: j['mb'] as bool? ?? true,
         english: j['en'] as String? ?? 'US',
@@ -61,6 +67,8 @@ class Settings {
         sound: j['snd'] as bool? ?? true,
         music: j['mus'] as bool? ?? true,
         cloudBackup: false, // cloud backup is never on without a parent account
+        reminder: j['rem'] as bool? ?? false,
+        reminderHour: j['remH'] as int? ?? 17,
       );
 }
 

@@ -4,22 +4,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:little_explorers/content/lab_move.dart';
 import 'package:little_explorers/content/levels.dart';
 import 'package:little_explorers/content/phonics.dart';
+import 'package:little_explorers/content/explore_more.dart';
+import 'package:little_explorers/content/stories_extra.dart';
 import 'package:little_explorers/content/stories_more.dart';
 import 'package:little_explorers/core/theme.dart';
 
 void main() {
-  test('960 levels: 160 in every world, unique ids, numbered in order', () {
+  test('2,400 levels: 300 in each of 8 worlds, unique ids, numbered in order', () {
     final ids = <String>{};
     for (final w in WorldId.values) {
       final ls = allLevels[w]!;
-      expect(ls.length, 160, reason: w.name);
+      expect(ls.length, 300, reason: w.name);
       for (var i = 0; i < ls.length; i++) {
         expect(ls[i].number, i + 1);
         expect(ids.add(ls[i].id), isTrue, reason: 'duplicate ${ls[i].id}');
         expect(ls[i].difficulty, inInclusiveRange(0, 4));
       }
     }
-    expect(ids.length, 960);
+    expect(WorldId.values.length, 8);
+    expect(ids.length, 2400);
   });
 
   test('phonics follows the systematic order s a t p i n first', () {
@@ -80,11 +83,14 @@ void main() {
 
   test('stories, scenarios, lab topics and moves are valid', () {
     expect(allStories.length, 120);
-    for (final s in allStories) {
+    expect(storyBook.length, 180);
+    expect(feelingsBook.length, 80);
+    for (final s in storyBook) {
       expect(s.answer, inInclusiveRange(0, s.choices.length - 1), reason: s.title);
     }
     expect(scenarios.length, greaterThanOrEqualTo(40));
-    expect(allLabTopics.length, 20);
+    expect(allLabTopics.length, 25);
+    expect(moves.length, 40);
     for (final t in allLabTopics) {
       for (final i in t.items) {
         expect(i.truth, inInclusiveRange(0, t.options.length - 1), reason: '${t.id} ${i.name}');
@@ -104,6 +110,25 @@ void main() {
       expect(maxN ~/ step, greaterThanOrEqualTo(5), reason: l.title);
     }
     expect(Random(1).nextInt(3), isNonNegative);
+  });
+
+  test('new worlds generate valid questions for every level and round', () {
+    for (final w in [WorldId.words, WorldId.health]) {
+      for (final l in allLevels[w]!) {
+        for (var round = 0; round < 6; round++) {
+          for (final choices in [2, 3, 4]) {
+            final r = Random(l.number * 13 + round);
+            final q = w == WorldId.health
+                ? healthQuestion(l.p['kind'] as String, round, l.p['offset'] as int, choices, r)
+                : wordQuestion(l.p['kind'] as String, round, l.p['offset'] as int, choices, r);
+            expect(q.choices.length, greaterThanOrEqualTo(2), reason: '${l.id} ${q.prompt}');
+            expect(q.choices.length, q.labels.length);
+            expect(q.answer, inInclusiveRange(0, q.choices.length - 1));
+            expect(q.choices.toSet().length, q.choices.length, reason: 'duplicate picture in ${l.id}: ${q.prompt}');
+          }
+        }
+      }
+    }
   });
 
   test('stickers resolve', () {

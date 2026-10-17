@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../content/lab_move.dart';
 import '../content/levels.dart';
 import '../content/stories.dart';
-import '../content/stories_more.dart';
+import '../content/stories_extra.dart';
 import '../core/audio.dart';
 import '../core/responsive.dart';
 import '../core/state/scope.dart';
@@ -28,7 +28,7 @@ class StoryGame extends StatefulWidget {
 }
 
 class _StoryGameState extends State<StoryGame> {
-  late final Story story = allStories[widget.level.p['story'] as int];
+  late final Story story = storyBook[widget.level.p['story'] as int];
   int _page = 0;
   int _word = -1;
   Timer? _t;

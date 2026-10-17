@@ -361,6 +361,17 @@ class Pic extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = _painters[id];
     if (p != null) return SizedBox.square(dimension: size, child: CustomPaint(painter: p()));
+    if (id.startsWith('swatch:')) {
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: Color(int.parse(id.substring(7), radix: 16)),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 4),
+        ),
+      );
+    }
     if (id.startsWith('txt:')) {
       final t = id.substring(4);
       return SizedBox.square(

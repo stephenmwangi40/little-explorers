@@ -1,7 +1,8 @@
 import '../core/theme.dart';
 import 'lab_move.dart';
 import 'phonics.dart';
-import 'stories_more.dart';
+import 'explore_more.dart';
+import 'stories_extra.dart';
 
 enum GameType {
   letterSound,
@@ -29,6 +30,11 @@ enum GameType {
   feelings,
   lab,
   move,
+  readWord,
+  missingLetter,
+  clock,
+  oddOneOut,
+  quiz,
 }
 
 class Level {
@@ -46,8 +52,8 @@ class Level {
   String get id => '${world.name}_$number';
 }
 
-/// 160 levels in each of 6 worlds = 960 levels.
-const levelsPerWorld = 160;
+/// 300 levels in each of 8 worlds = 2,400 levels.
+const levelsPerWorld = 300;
 
 /// Free tier: the daily adventure plus this many levels in each world.
 const freeLevelsPerWorld = 1;
@@ -61,6 +67,8 @@ final Map<WorldId, List<Level>> allLevels = {
   WorldId.story: _stories(),
   WorldId.lab: _lab(),
   WorldId.move: _move(),
+  WorldId.words: _words(),
+  WorldId.health: _health(),
 };
 
 final Map<String, Level> _byId = {
@@ -224,6 +232,42 @@ List<Level> _letters() {
   for (final f in mixed) {
     f();
   }
+
+  // Levels 161-300: real reading, spelling and review.
+  final reading = [
+    for (var i = 0; i < 50; i++)
+      () {
+        final set = 1 + (i * 9) ~/ 50;
+        add('Read it! (set $set)', GameType.readWord, 'read_$set', {'set': set}, '📖');
+      },
+  ];
+  final spelling = [
+    for (var i = 0; i < 50; i++)
+      () {
+        final set = 1 + (i * 9) ~/ 50;
+        add('Spell it! (set $set)', GameType.missingLetter, 'spell_$set', {'set': set}, '✏️');
+      },
+  ];
+  final rhymes2 = [
+    for (var i = 0; i < 10; i++) () => add('Rhyme time', GameType.rhyme, 'rhyme', {'offset': i * 5 + 2}, rhymeSets[(i * 5 + 2) % rhymeSets.length][1].$2),
+  ];
+  final sight2 = [
+    for (var i = 0; i < 20; i++)
+      () {
+        final start = (i * 4) % (sightWords.length - 4);
+        final words = sightWords.sublist(start, start + 4);
+        add('Tricky words: ${words.take(2).join(', ')}', GameType.sightWord, 'sight', {'words': words, 'known': sightWords},
+            'txt:${words.first}');
+      },
+  ];
+  final review2 = [
+    for (var i = 0; i < 10; i++)
+      () => add('Sound check: all sounds', GameType.letterSound, 'snd_review',
+          {'targets': [for (final s in phonicsSets) ...s], 'taught': List<String>.from(taught)}, 'txt:${phonicsSets[i % 8].last}'),
+  ];
+  for (final f in _interleave([reading, spelling, sight2, rhymes2, review2])) {
+    f();
+  }
   assert(out.length == levelsPerWorld, 'letters: ${out.length}');
   return out;
 }
@@ -264,6 +308,20 @@ List<Level> _math() {
       ['make', 10], ['addsub', 'mix', 20], ['order', 'missing', 2, 40], ['cmpnum', 50],
     ]);
   }
+  // Phase 5 (161-300): telling the time, numbers to 100, mixed practice.
+  final template = <List<Object> Function(int)>[
+    (k) => ['clock', k >= 6],
+    (k) => ['addsub', 'add', 20],
+    (k) => ['order', 'next', 10, 100],
+    (k) => ['cmpnum', 100],
+    (k) => ['addsub', 'sub', 20],
+    (k) => ['order', 'missing', 5, 100],
+    (k) => ['addsub', 'mix', 20],
+    (k) => ['quick', 6],
+  ];
+  for (var i = 0; spec.length < levelsPerWorld; i++) {
+    spec.add(template[i % template.length](i ~/ template.length));
+  }
   final out = <Level>[];
   for (var i = 0; i < spec.length; i++) {
     final s = spec[i];
@@ -303,6 +361,8 @@ List<Level> _math() {
           d,
           {'mode': s[1], 'step': s[2], 'max': s[3], 'back': s[1] == 'missing'},
           'txt:${s[2]}'),
+      'clock' => Level(WorldId.math, n, s[1] == true ? 'Half past' : 'What time is it?', GameType.clock,
+          s[1] == true ? 'time_half' : 'time_hour', d, {'half': s[1]}, '⏰'),
       _ => Level(WorldId.math, n, 'Bigger number to ${s[1]}', GameType.compareNumbers, 'compare_numbers', d,
           {'max': s[1]}, 'txt:${s[1]}'),
     };
@@ -321,11 +381,16 @@ List<Level> _shapes() {
     GameType.shapeSort, GameType.pattern, GameType.shapeFind, GameType.solid,
     GameType.size, GameType.position, GameType.pattern, GameType.shapeCount,
   ];
+  final slots2 = [
+    GameType.shapeSort, GameType.pattern, GameType.oddOneOut, GameType.solid,
+    GameType.position, GameType.shapeCount, GameType.shapeFind, GameType.oddOneOut,
+  ];
   final out = <Level>[];
   for (var i = 0; i < levelsPerWorld; i++) {
     final n = i + 1;
     final d = _difficulty(n);
-    final t = slots[i % 8];
+    // From level 161, odd-one-out puzzles join the mix.
+    final t = i < 160 ? slots[i % 8] : slots2[i % 8];
     final cycle = i ~/ 8;
     final p = <String, Object>{};
     var title = '';
@@ -363,6 +428,9 @@ List<Level> _shapes() {
       case GameType.shapeCount:
         title = 'Count the shapes';
         skill = 'shape_count';
+      case GameType.oddOneOut:
+        title = 'Odd one out';
+        skill = 'odd_one_out';
       default:
         break;
     }
@@ -378,13 +446,13 @@ List<Level> _stories() {
   final out = <Level>[];
   var story = 0, feel = 0;
   for (var n = 1; n <= levelsPerWorld; n++) {
-    // Every 4th level is a "How would you feel?" level.
-    if (n % 4 == 0) {
+    // 2 in every 5 levels are "How would you feel?" levels; 180 are stories.
+    if (n % 5 == 0 || n % 5 == 3) {
       out.add(Level(WorldId.story, n, 'How would you feel?', GameType.feelings, 'feelings', _difficulty(n),
-          {'offset': feel * 3}, scenarios[(feel * 3) % scenarios.length].pic));
+          {'offset': feel * 3}, feelingsBook[(feel * 3) % feelingsBook.length].pic));
       feel++;
     } else {
-      final s = allStories[story];
+      final s = storyBook[story];
       out.add(Level(WorldId.story, n, s.title, GameType.story, s.feelings ? 'story_feel' : 'story_detail', _difficulty(n),
           {'story': story}, s.scene.first));
       story++;
@@ -396,7 +464,7 @@ List<Level> _stories() {
 // ---------------------------------------------------------------- lab
 
 List<Level> _lab() {
-  // Each of the 20 topics appears 8 times, spread across the world.
+  // Each of the 25 topics appears 12 times, spread across the world.
   final out = <Level>[];
   final per = levelsPerWorld ~/ allLabTopics.length;
   for (var round = 0; round < per; round++) {
@@ -419,6 +487,42 @@ List<Level> _move() => [
             (i * 7 + 11) % moves.length == i % moves.length ? (i + 1) % moves.length : (i * 7 + 11) % moves.length,
             if (i >= 64) (i * 13 + 5) % moves.length,
           ],
-          'reps': 3 + i ~/ 40,
+          'reps': 3 + i ~/ 75,
         }, moves[i % moves.length].pic),
     ];
+
+// ---------------------------------------------------------------- word garden
+
+List<Level> _words() {
+  const kinds = ['name', 'category', 'opposite', 'colour', 'use'];
+  const titles = {
+    'name': 'Name it!',
+    'category': 'Sort it out',
+    'opposite': 'Opposites',
+    'colour': 'Colour hunt',
+    'use': 'What is it for?',
+  };
+  return [
+    for (var i = 0; i < levelsPerWorld; i++)
+      Level(WorldId.words, i + 1, titles[kinds[i % kinds.length]]!, GameType.quiz, 'words_${kinds[i % kinds.length]}',
+          _difficulty(i + 1), {'kind': kinds[i % kinds.length], 'offset': i * 3}, things[(i * 7) % things.length].pic),
+  ];
+}
+
+// ---------------------------------------------------------------- healthy me
+
+List<Level> _health() {
+  final topics = [...healthTopics, 'mix'];
+  return [
+    for (var i = 0; i < levelsPerWorld; i++)
+      Level(
+          WorldId.health,
+          i + 1,
+          healthTitles[topics[i % topics.length]] ?? 'Healthy me mix',
+          GameType.quiz,
+          'health_${topics[i % topics.length]}',
+          _difficulty(i + 1),
+          {'kind': topics[i % topics.length], 'offset': i},
+          healthQs.where((q) => topics[i % topics.length] == 'mix' || q.topic == topics[i % topics.length]).first.choices.first.$1),
+  ];
+}

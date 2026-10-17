@@ -94,6 +94,13 @@ void main() {
     '36_feelings': () => GameShell(level: allLevels[WorldId.story]!.firstWhere((l) => l.type == GameType.feelings)),
     '37_trace_capital': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.p['letter'] == 'B')),
     '38_subtract': () => GameShell(level: allLevels[WorldId.math]!.firstWhere((l) => l.p['op'] == 'sub')),
+    '39_read_word': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.type == GameType.readWord)),
+    '40_spell': () => GameShell(level: allLevels[WorldId.alpha]!.firstWhere((l) => l.type == GameType.missingLetter)),
+    '41_clock': () => GameShell(level: allLevels[WorldId.math]!.firstWhere((l) => l.type == GameType.clock)),
+    '42_odd_one_out': () => GameShell(level: allLevels[WorldId.shapes]!.firstWhere((l) => l.type == GameType.oddOneOut)),
+    '43_word_garden': () => GameShell(level: allLevels[WorldId.words]![2]),
+    '44_healthy_me': () => GameShell(level: allLevels[WorldId.health]![3]),
+    '45_word_map': () => const WorldMapScreen(world: WorldId.words),
   };
 
   for (final sz in sizes.entries) {

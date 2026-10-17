@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../content/levels.dart';
 import '../core/audio.dart';
 import '../core/responsive.dart';
+import '../core/state/app_state.dart';
 import '../core/state/scope.dart';
 import '../core/theme.dart';
 import '../core/widgets/art.dart';
@@ -26,6 +27,8 @@ String worldName(BuildContext context, WorldId w) {
     WorldId.story => 'Story Tree',
     WorldId.lab => 'Wonder Lab',
     WorldId.move => 'Move & Groove',
+    WorldId.words => 'Word Garden',
+    WorldId.health => 'Healthy Me',
   };
 }
 
@@ -49,6 +52,8 @@ class WorldGlyph extends StatelessWidget {
       WorldId.story => Icon(Icons.menu_book_rounded, color: white, size: size * .6),
       WorldId.lab => Icon(Icons.science_rounded, color: white, size: size * .6),
       WorldId.move => Icon(Icons.directions_run_rounded, color: white, size: size * .62),
+      WorldId.words => Icon(Icons.local_florist_rounded, color: white, size: size * .6),
+      WorldId.health => Icon(Icons.favorite_rounded, color: white, size: size * .58),
     };
   }
 }
@@ -161,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
           StarPill(p.stars, ink: true),
         ]);
         final adventure = _AdventureCard(large: l.large);
-        final worlds = _WorldGrid(columns: l.large || l.twoCol ? 3 : 2, large: l.large);
+        final worlds = _WorldGrid(columns: l.large ? 4 : 2, large: l.large);
         final dock = ConstrainedBox(constraints: const BoxConstraints(maxWidth: 560), child: const _Dock());
         final coach = Coach(s.adventureDone ? 'You finished today’s adventure!' : 'Ready for today’s adventure?',
             size: 74, center: true);
@@ -231,9 +236,13 @@ class _AdventureCard extends StatelessWidget {
     final s = AppScope.of(context);
     final step = s.adventureStep;
     final worlds = s.adventureWorlds;
-    // Shrink the step dots when there are many steps on a narrow screen.
-    final steps0 = worlds.length + 1;
-    final sz = large ? 52.0 : (MediaQuery.sizeOf(context).width < 400 && steps0 > 6 ? 36.0 : 44.0);
+    return LayoutBuilder(builder: (context, c) => _build(context, s, step, worlds, c.maxWidth - 28));
+  }
+
+  Widget _build(BuildContext context, AppState s, int step, List<WorldId> worlds, double width) {
+    // Dots shrink to fit when the adventure has many steps.
+    final n = worlds.length + 1;
+    final sz = ((width - (n - 1) * 8) / n).clamp(24.0, large ? 52.0 : 44.0);
     Widget dot(int i, Color c, Widget glyph) {
       final done = i < step;
       final cur = i == step;
@@ -246,14 +255,14 @@ class _AdventureCard extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: cur ? [const BoxShadow(color: Colors.white, spreadRadius: 3), BoxShadow(color: c, spreadRadius: 6)] : null,
         ),
-        child: done ? const Icon(Icons.check_rounded, color: Colors.white) : glyph,
+        child: done ? Icon(Icons.check_rounded, color: Colors.white, size: sz * .55) : glyph,
       );
     }
 
     final line = Expanded(
         child: Container(
             height: 4,
-            margin: const EdgeInsets.symmetric(horizontal: 3),
+            margin: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(color: C.ink.withValues(alpha: .15), borderRadius: BorderRadius.circular(2))));
     final steps = <Widget>[];
     for (var i = 0; i < worlds.length; i++) {
@@ -269,7 +278,7 @@ class _AdventureCard extends StatelessWidget {
     }
     steps
       ..add(line)
-      ..add(dot(worlds.length, C.night, const Icon(Icons.nightlight_round, color: Colors.white, size: 20)));
+      ..add(dot(worlds.length, C.night, Icon(Icons.nightlight_round, color: Colors.white, size: sz * .45)));
 
     return GlassPanel(
       tone: GlassTone.strong,

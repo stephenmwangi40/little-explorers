@@ -81,7 +81,7 @@ ThemeData buildTheme() {
   );
 }
 
-enum WorldId { alpha, math, shapes, story, lab, move }
+enum WorldId { alpha, math, shapes, words, story, lab, health, move }
 
 /// Per-world palette, matching the prototype.
 class WorldStyle {
@@ -95,6 +95,8 @@ class WorldStyle {
     WorldId.story: WorldStyle(Color(0xFFE86A92), Color(0xFFF28AAB), Color(0xFFC9507A), Color(0xFFC9507A)),
     WorldId.lab: WorldStyle(Color(0xFF4DA3FF), Color(0xFF6FB6FF), Color(0xFF2F86E0), Color(0xFF2F86E0)),
     WorldId.move: WorldStyle(Color(0xFFFFB703), Color(0xFFFFC94D), Color(0xFFE09E00), Color(0xFFE09E00)),
+    WorldId.words: WorldStyle(Color(0xFF2EC4B6), Color(0xFF5AD6CB), Color(0xFF1FA396), Color(0xFF16897E)),
+    WorldId.health: WorldStyle(Color(0xFF6FBF3A), Color(0xFF8DD15C), Color(0xFF55A12A), Color(0xFF4A8F24)),
   };
   static WorldStyle of(WorldId w) => map[w]!;
 }

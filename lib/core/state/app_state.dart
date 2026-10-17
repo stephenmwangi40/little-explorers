@@ -256,19 +256,25 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Today's Adventure: letters -> numbers -> (shapes) -> story -> (lab) -> movement.
   /// 30 minutes visits all six worlds; shorter adventures visit fewer.
+  /// 45 minutes visits all eight worlds; 60 minutes adds a second movement
+  /// break halfway, and more questions per step.
   List<WorldId> get adventureWorlds {
     final m = settings.adventureMinutes;
+    final move = settings.moveBreaks;
     return [
       WorldId.alpha,
       WorldId.math,
       if (m >= 20) WorldId.shapes,
+      if (m >= 60 && move) WorldId.move,
+      if (m >= 45) WorldId.words,
       WorldId.story,
       if (m >= 30) WorldId.lab,
-      if (settings.moveBreaks) WorldId.move,
+      if (m >= 45) WorldId.health,
+      if (move) WorldId.move,
     ];
   }
 
-  int get roundsPerStep => switch (settings.adventureMinutes) { 10 => 3, 15 || 20 => 4, _ => 5 };
+  int get roundsPerStep => switch (settings.adventureMinutes) { <= 10 => 3, <= 20 => 4, <= 45 => 5, _ => 6 };
 
   void _resetAdventureIfNewDay(Profile p) {
     final today = dayKey(clock());
@@ -305,6 +311,30 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Picks today's level for a world: a due review first, else the next
   /// level. The daily adventure is free, so any level can appear here.
+  /// Practice (like a "practice hub"): a level the child has finished
+  /// whose skill is due for review, or is the least accurate. Null if none.
+  Level? practiceLevel(WorldId w) {
+    final p = current;
+    if (p == null) return null;
+    final done = allLevels[w]!.where(isDone).toList();
+    if (done.length < 3) return null;
+    final now = clock();
+    for (final l in done.reversed) {
+      final r = p.skills[l.skill];
+      if (r != null && MasteryEngine.isDue(r, now)) return l;
+    }
+    Level? worst;
+    var acc = 2.0;
+    for (final l in done) {
+      final a = p.skills[l.skill]?.accuracy ?? 1;
+      if (a < acc) {
+        acc = a;
+        worst = l;
+      }
+    }
+    return worst;
+  }
+
   Level adventureLevel(WorldId w) {
     final p = current;
     final now = clock();
